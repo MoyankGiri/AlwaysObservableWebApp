@@ -12,5 +12,5 @@ message WelcomeUserResponseMessage {
 }
 
 service Greeter {
-    rpc SendGreeting (greetingRequest) returns (greetingResponse);
+    rpc SendGreeting (WelcomeUserRequestMessage) returns (WelcomeUserResponseMessage);
 }
