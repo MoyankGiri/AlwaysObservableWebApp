@@ -1,1 +1,4 @@
-microservices/venv
+venv
+*.pyc
+db.txt
+*_pb2*.py

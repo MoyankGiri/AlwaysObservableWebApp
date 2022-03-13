@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package comment;
+
+import "shared.proto";
+
+service commentService{
+    rpc createComment (aComment) returns (commentItem);
+    rpc readComments (shared.uid) returns (stream commentItem);
+    rpc updateComment (shared.uid) returns (commentItem);
+}
+
+message commentItem{
+    string id = 1;
+    string body = 2;
+    string author = 3;
+    string parentPost = 4;
+    string parentComment = 5;
+}
+
+message aComment{
+    string body = 1;
+    string author = 2;
+    string parentPost = 3;
+    string parentComment = 4;
+}

@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+package post;
+
+service postService{
+    rpc create (newPost) returns (postItem);
+    rpc readOne (noparam) returns (aPost);
+    rpc updatePost (uid) returns (aPost);
+}
+
+message uid{
+    string id=1;
+}
+
+message noparam{}
+
+message aPost{
+    string id = 1;
+    string title = 2;
+    string body = 3;
+    string author = 4;
+    string creationDate = 5;
+    string lastUpdatedDate = 6;
+}
+
+message newPost{
+    string title =1;
+    string body = 2;
+    string author =3;
+}
+
+message postItem{
+    string id = 1;
+    string title = 2;
+    string body = 3;
+    string author = 4;
+}
