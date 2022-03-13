@@ -1,0 +1,16 @@
+
+syntax = "proto3" ;
+
+
+message WelcomeUserRequestMessage {
+    string name = 1;
+    int32 id = 2;
+}
+
+message WelcomeUserResponseMessage {
+    string message = 1;
+}
+
+service Greeter {
+    rpc SendGreeting (greetingRequest) returns (greetingResponse);
+}

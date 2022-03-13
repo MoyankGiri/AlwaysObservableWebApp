@@ -1,7 +1,10 @@
 # AlwaysObservableWebApp
 
 How to run?
-1.Clone repo
-2.Goto microservices folder and change to the virtual env
-3.pip install requirements
-3.execute pyrhon application.py
+1. Clone the repo
+2. Head to microservices folder and change to your virtual env
+3. Install the necessary requirements by running <br>
+```pip install -r ./requirements.txt```
+4. execute ```python application.py``` to run the application
+
+
