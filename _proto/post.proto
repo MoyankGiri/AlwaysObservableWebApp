@@ -4,12 +4,23 @@ package post;
 
 service postService{
     rpc create (newPost) returns (postItem);
-    rpc readOne (noparam) returns (aPost);
-    rpc updatePost (uid) returns (aPost);
+    rpc readOne (uid) returns (aPost);
+    rpc updatePost (updatePostItem) returns (aPost);
+    rpc deletePost (uid) returns (isSuccess);
+}
+
+message isSuccess{
+    bool success=1;
 }
 
 message uid{
     string id=1;
+}
+
+message updatePostItem{
+    string id=1;
+    string field = 2;
+    string content = 3;
 }
 
 message noparam{}
