@@ -8,7 +8,7 @@ import post_pb2
 async def read_post(stub:post_pb2_grpc.postServiceServicer):
     post = None
     try:
-        post = await stub.readOne(post_pb2.uid(id="1"))
+        post = await stub.readOne(post_pb2.uid(id='2'))
         print("post:",post)
     except Exception as e:
         print(f"[ERROR]: {e}")
@@ -45,11 +45,12 @@ async def create_post(stub:post_pb2_grpc.postServiceServicer):
 async def main():
     async with grpc.aio.insecure_channel('localhost:50051') as channel:
         stub = post_pb2_grpc.postServiceStub(channel)
-        print("-------------READ POST-------------")
-        await read_post(stub)
 
         print("-------CREATE POST-------")
         await create_post(stub)
+
+        print("-------------READ POST-------------")
+        await read_post(stub)
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)

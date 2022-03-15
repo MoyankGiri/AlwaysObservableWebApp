@@ -3,7 +3,7 @@ syntax = "proto3";
 package post;
 
 service postService{
-    rpc create (newPost) returns (postItem);
+    rpc create (newPost) returns (aPost);
     rpc readOne (uid) returns (aPost);
     rpc updatePost (updatePostItem) returns (aPost);
     rpc deletePost (uid) returns (isSuccess);
@@ -38,11 +38,4 @@ message newPost{
     string title =1;
     string body = 2;
     string author =3;
-}
-
-message postItem{
-    string id = 1;
-    string title = 2;
-    string body = 3;
-    string author = 4;
 }
