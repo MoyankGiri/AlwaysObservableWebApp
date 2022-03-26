@@ -1,4 +1,3 @@
-from doctest import Example
 import logging
 from datetime import date
 
@@ -9,40 +8,82 @@ import grpc
 import post_pb2
 import post_pb2_grpc as post_grpc
 
-import sqlite3
+import pymongo
+from pymongo.collection import ReturnDocument
+from bson.objectid import ObjectId
 
 class postServiceServicer(post_grpc.postServiceServicer):
     def makeConnection(self):
-        self.conn = sqlite3.connect("post")
-        self.cur = self.conn.cursor()
+        print("Creating connection to mongodb....")
+        self.conn = pymongo.MongoClient("mongodb://localhost:27017/")
+        self.db = self.conn["blog"]
+        self.collection = self.db["posts"]
 
-    def __init__(self):
+    def updatePost(self,req,ctx):
         self.makeConnection()
-        # self.cur.execute('''
-        # drop table post;
-        # ''')
-        self.cur.execute('''
-        create table if not exists post(id INTEGER primary key AUTOINCREMENT, title text not null,body text not null,author bigint not null,creationDate date not null,lastupdatedDate date not null);
-        ''')
-        self.conn.commit()
-        self.conn.close()
+        print("Updating record....")
+        ret = None
 
+        try:
+            print("req",req)
+            searchKey = ObjectId(req.id)
+
+            row = self.collection.find_one_and_update({"_id":searchKey},{"$set":{
+               "id" : req.id,
+               "title":req.title,
+               "body":req.body,
+               "author":req.author,
+               "creationDate":req.creationDate,
+               "lastUpdatedDate":req.lastUpdatedDate
+            }},return_document=ReturnDocument.AFTER)
+            print("row",row)
+
+            if row:
+                print("Updated record!!")
+
+                ret = post_pb2.aPost(
+                id=f'{req.id}',
+                title=row["title"],
+                body=row["body"],
+                author=row["author"],
+                creationDate=row["creationDate"],
+                lastUpdatedDate=row["lastUpdatedDate"]
+                )
+            else:
+                raise ValueError("No doc updated!")
+        except:
+            ret = post_pb2.aPost(
+                id = "",
+                title = "",
+                body = "",
+                author = "",
+                creationDate = "",
+                lastUpdatedDate = "",
+                )
+        finally:
+            self.conn.close()
+            return ret
+            
     def create(self,req,ctx):
-        print("Creating row....")
         self.makeConnection()
+        print("Creating row....")
+        ret = None
 
         today = date.today().strftime("%d-%m-%y")
         try:
             #insert row of data
-            self.cur.execute(f'''
-            insert into post (title,body,author,creationDate,lastUpdatedDate) values ('{req.title}','{req.body}','{req.author}','{today}','{today}');
-            ''')
-            self.conn.commit()
-            self.conn.close()
+            data = {
+                "title":req.title,
+                "body":req.body,
+                "author":req.author,
+                "creationDate":today,
+                "lastUpdatedDate":today
+            }
+            rec_id = self.collection.insert_one(data)
             print("Commited....")
 
-            return post_pb2.aPost(
-                id=f"{self.cur.lastrowid}",
+            ret = post_pb2.aPost(
+                id=f"{rec_id.inserted_id}",
                 title=req.title,
                 body=req.body,
                 author=req.author,
@@ -50,7 +91,7 @@ class postServiceServicer(post_grpc.postServiceServicer):
                 lastUpdatedDate=today
             )
         except:
-             return post_pb2.aPost(
+             ret = post_pb2.aPost(
                 id = "",
                 title = "",
                 body = "",
@@ -58,43 +99,42 @@ class postServiceServicer(post_grpc.postServiceServicer):
                 creationDate = "",
                 lastUpdatedDate = "",
                 )
-
+        finally:
+            self.conn.close()
+            return ret
 
     def readOne(self,req,ctx):
         print("req:",req)
         self.makeConnection()
+        ret = None
 
-        # line = self.cur.execute('''
-        # select * from post;
-        # ''')
-        # for r in line:
-        #     print(r)
+        try:
+            row = self.collection.find_one({"_id":ObjectId(req.id)})
+            print("row obtained",row)
 
-        line = self.cur.execute(f'''
-            select * from post where id={int(req.id)};
-        ''')
-
-        if not line:
-            return post_pb2.aPost(
-                id = "",
-                title = "",
-                body = "",
-                author = "",
-                creationDate = "",
-                lastUpdatedDate = "",
-                )
-        else:
-            for row in line:
+            if not row:
                 ret = post_pb2.aPost(
-                    id=f'{row[0]}',
-                    title=row[1],
-                    body=row[2],
-                    author=row[3],
-                    creationDate=row[4],
-                    lastUpdatedDate=row[5]
+                    id = "",
+                    title = "",
+                    body = "",
+                    author = "",
+                    creationDate = "",
+                    lastUpdatedDate = "",
                     )
-                self.conn.close()
-                return ret
+            else:
+                raise ValueError("No object found in db!")
+        except:
+            ret = post_pb2.aPost(
+                id=f'{req.id}',
+                title=row["title"],
+                body=row["body"],
+                author=row["author"],
+                creationDate=row["creationDate"],
+                lastUpdatedDate=row["lastUpdatedDate"]
+                )
+        finally:
+            self.conn.close()
+            return ret
 
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))

@@ -5,7 +5,7 @@ package post;
 service postService{
     rpc create (newPost) returns (aPost);
     rpc readOne (uid) returns (aPost);
-    rpc updatePost (updatePostItem) returns (aPost);
+    rpc updatePost (aPost) returns (aPost);
     rpc deletePost (uid) returns (isSuccess);
 }
 

@@ -1,0 +1,5 @@
+cd /home/chandradhar/Projects/CTY/AlwaysObservableWebApp
+
+source venv/bin/activate
+
+sudo ./generate_proto.sh post_svc post
