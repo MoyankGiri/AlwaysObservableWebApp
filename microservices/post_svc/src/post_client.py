@@ -87,8 +87,8 @@ async def main():
     async with grpc.aio.insecure_channel('localhost:50051') as channel:
         stub = post_pb2_grpc.postServiceStub(channel)
 
-        # print("-------CREATE POST-------")
-        # await create_post(stub)
+        print("-------CREATE POST-------")
+        await create_post(stub)
 
         # print("-------------READ POST-------------")
         # await read_post(stub)
@@ -96,7 +96,7 @@ async def main():
         # print("-------Update Post-------")
         # await update_post(stub)
 
-        print("-------DELETE POST---------")
+        # print("-------DELETE POST---------")
         await delete_post(stub)
 
 if __name__ == "__main__":

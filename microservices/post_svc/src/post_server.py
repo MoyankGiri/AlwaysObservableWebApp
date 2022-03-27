@@ -2,9 +2,6 @@ import logging
 from datetime import date
 
 from concurrent import futures
-from multiprocessing.sharedctypes import Value
-import re
-from sre_constants import SUCCESS
 import grpc
 
 import post_pb2
