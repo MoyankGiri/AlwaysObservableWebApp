@@ -3,3 +3,9 @@ cd /home/chandradhar/Projects/CTY/AlwaysObservableWebApp
 source venv/bin/activate
 
 sudo ./generate_proto.sh post_svc post
+
+
+For client and server:
+source /venv/bin/activate
+clear;python3 post_server.py   
+❯ clear;python3 post_client.py   

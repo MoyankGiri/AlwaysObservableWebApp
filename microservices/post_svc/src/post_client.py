@@ -4,6 +4,21 @@ import grpc
 import post_pb2_grpc
 import post_pb2
 
+async def delete_post(stub:post_pb2_grpc.postServiceServicer):
+    success = False
+    try:
+        success = await stub.deletePost(post_pb2.uid(id='623fe0ccee69055e4871bf26'))
+    except Exception as e:
+        print(f"[ERROR]: {e}")
+    finally:
+
+        print("-------DELETE POST---------")
+        if success:
+            print("deleted post successfully")
+        else:
+            print("Couldnt delete post successfully")
+        print("-------DELETE POST---------")
+
 async def read_post(stub:post_pb2_grpc.postServiceServicer):
     post = None
     try:
@@ -75,11 +90,14 @@ async def main():
         # print("-------CREATE POST-------")
         # await create_post(stub)
 
-        print("-------------READ POST-------------")
-        await read_post(stub)
+        # print("-------------READ POST-------------")
+        # await read_post(stub)
 
-        print("-------Update Post-------")
-        await update_post(stub)
+        # print("-------Update Post-------")
+        # await update_post(stub)
+
+        print("-------DELETE POST---------")
+        await delete_post(stub)
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)

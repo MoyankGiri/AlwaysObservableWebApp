@@ -2,7 +2,9 @@ import logging
 from datetime import date
 
 from concurrent import futures
+from multiprocessing.sharedctypes import Value
 import re
+from sre_constants import SUCCESS
 import grpc
 
 import post_pb2
@@ -18,6 +20,19 @@ class postServiceServicer(post_grpc.postServiceServicer):
         self.conn = pymongo.MongoClient("mongodb://localhost:27017/")
         self.db = self.conn["blog"]
         self.collection = self.db["posts"]
+
+    def deletePost(self,req,ctx):
+        self.makeConnection()
+        print("Deleting record....")
+        res = False
+
+        try:
+            print("req",req)
+            res = self.collection.delete_one({"_id":ObjectId(req.id)})
+            if not res.acknowledged:
+                raise ValueError("Unable to delete record from db!")
+        finally:
+            return post_pb2.isSuccess(success=res.acknowledged)
 
     def updatePost(self,req,ctx):
         self.makeConnection()
