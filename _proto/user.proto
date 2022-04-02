@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package user;
+
+//username is unique here
+service userService{
+    rpc createAccount (aUser) returns (isSuccess);
+    rpc login(aUser) returns (isSuccess);
+}
+
+message aUser{
+    string username=1;
+    string password=2;
+}
+
+message isSuccess{
+    bool success=1;
+    string msg=2;
+}

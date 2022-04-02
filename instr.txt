@@ -4,6 +4,7 @@ source venv/bin/activate
 
 sudo ./generate_proto.sh post_svc post
 
+ ./generate_proto.sh post_svc post auth_svc user
 
 For client and server:
 source /venv/bin/activate
