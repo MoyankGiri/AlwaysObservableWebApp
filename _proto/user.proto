@@ -5,7 +5,7 @@ package user;
 //username is unique here
 service userService{
     rpc createAccount (aUser) returns (isSuccess);
-    rpc login(aUser) returns (isSuccess);
+    rpc login(aUser) returns (session);
 }
 
 message aUser{
@@ -16,4 +16,11 @@ message aUser{
 message isSuccess{
     bool success=1;
     string msg=2;
+}
+
+message session{
+    bool success=1;
+    string msg=2;
+    string token=3;
+    string timeLimit=4;
 }

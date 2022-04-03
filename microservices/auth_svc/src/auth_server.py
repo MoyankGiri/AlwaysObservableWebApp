@@ -1,5 +1,7 @@
+from email.policy import default
+from json import dumps
 import logging
-from datetime import date
+from datetime import date, datetime, timedelta
 
 import bcrypt
 
@@ -12,6 +14,9 @@ import user_pb2_grpc as user_grpc
 import pymongo
 from pymongo.collection import ReturnDocument
 from bson.objectid import ObjectId
+
+import jwt
+jwt_key = '3213dsaas'
 
 class userServiceServicer(user_grpc.userServiceServicer):
     def makeConnection(self):
@@ -71,22 +76,33 @@ class userServiceServicer(user_grpc.userServiceServicer):
 
         if not row:
             #create account
-            return user_pb2.isSuccess(
+            return user_pb2.session(
                 success = 0,
-                msg = "no account in db,redirecting to signup page..."
+                msg = "no account in db,redirecting to signup page...",
+                token='',
+                timelimit=''
             )
         else:
             #username found in db,check if password matches
             print(row)
             if bcrypt.checkpw(password,row['password']):
-                return user_pb2.isSuccess(
+                #generate json web token
+                jwt_expiry_time = dumps(datetime.utcnow()+timedelta(minutes=30),indent=4,sort_keys=True,default=str)
+                payload = {'username':username,'expiry':jwt_expiry_time}
+                token = jwt.encode(payload,jwt_key)
+
+                return user_pb2.session(
                     success = 1,
-                    msg = "User found and password matched!"
+                    msg = "User found and password matched!",
+                    token=token,
+                    timeLimit = jwt_expiry_time
                 )
             else:
-                return user_pb2.isSuccess(
+                return user_pb2.session(
                     success = 0,
-                    msg = "Invalid username or password!Try again!"
+                    msg = "Invalid username or password!Try again!",
+                    token='',
+                    timelimit=''
                 )
             
 def serve():
