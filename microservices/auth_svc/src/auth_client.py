@@ -9,7 +9,7 @@ import user_pb2
 async def createAccount(stub:user_pb2_grpc.userServiceServicer):
     success = None
     try:
-        success = await stub.createAccount(user_pb2.aUser(username="rahane",password="secret"))
+        success = await stub.createAccount(user_pb2.aUser(username="dhoni",password="secret"))
         print(success)
     except Exception as e:
         print(f"[ERROR]: {e}")
@@ -19,7 +19,7 @@ async def createAccount(stub:user_pb2_grpc.userServiceServicer):
 async def login(stub:user_pb2_grpc.userServiceServicer):
     success = None
     try:
-        success = await stub.login(user_pb2.aUser(username="rahane",password="secret"))
+        success = await stub.login(user_pb2.aUser(username="dhoni",password="secret"))
         print(success)
     except Exception as e:
         print(f'[ERROR]: {e}')

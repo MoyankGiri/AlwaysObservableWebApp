@@ -1,3 +1,4 @@
+from base64 import encode
 from email.policy import default
 from json import dumps
 import logging
@@ -16,8 +17,8 @@ from pymongo.collection import ReturnDocument
 from bson.objectid import ObjectId
 
 import jwt
-jwt_key = '3213dsaas'
-
+from cryptography.hazmat.primitives import serialization
+key = "secret"
 class userServiceServicer(user_grpc.userServiceServicer):
     def makeConnection(self):
         print("Creating connection to mongodb....")
@@ -69,6 +70,7 @@ class userServiceServicer(user_grpc.userServiceServicer):
             )
 
     def login(self,req,ctx):
+        self.makeConnection()
         username = req.username
         password = req.password.encode('utf-8')
 
@@ -80,7 +82,7 @@ class userServiceServicer(user_grpc.userServiceServicer):
                 success = 0,
                 msg = "no account in db,redirecting to signup page...",
                 token='',
-                timelimit=''
+                timeLimit=''
             )
         else:
             #username found in db,check if password matches
@@ -89,22 +91,27 @@ class userServiceServicer(user_grpc.userServiceServicer):
                 #generate json web token
                 jwt_expiry_time = dumps(datetime.utcnow()+timedelta(minutes=30),indent=4,sort_keys=True,default=str)
                 payload = {'username':username,'expiry':jwt_expiry_time}
-                token = jwt.encode(payload,jwt_key)
-
-                return user_pb2.session(
-                    success = 1,
-                    msg = "User found and password matched!",
-                    token=token,
-                    timeLimit = jwt_expiry_time
-                )
-            else:
-                return user_pb2.session(
-                    success = 0,
-                    msg = "Invalid username or password!Try again!",
-                    token='',
-                    timelimit=''
-                )
-            
+                token = jwt.encode(payload,key,algorithm='HS256')
+                print(f'Encoded {token}')
+                
+                try:
+                    decoded = jwt.decode(token, key, algorithms=['HS256', ])
+                    if decoded:
+                        return user_pb2.session(
+                            success = 1,
+                            msg = "User found and password matched!",
+                            token=token,
+                            timeLimit = jwt_expiry_time
+                        )
+                except Exception as e:
+                    print(e)
+                    return user_pb2.session(
+                        success = 0,
+                        msg = "Invalid username or password!Try again!",
+                        token='',
+                        timeLimit=''
+                    )
+    
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
     user_grpc.add_userServiceServicer_to_server(

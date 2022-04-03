@@ -6,6 +6,11 @@ package user;
 service userService{
     rpc createAccount (aUser) returns (isSuccess);
     rpc login(aUser) returns (session);
+    rpc auth(header) returns (isSuccess);
+}
+
+message header{
+    string token=1;
 }
 
 message aUser{
