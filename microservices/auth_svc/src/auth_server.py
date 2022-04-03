@@ -103,6 +103,8 @@ class userServiceServicer(user_grpc.userServiceServicer):
                             token=token,
                             timeLimit = jwt_expiry_time
                         )
+                    else:
+                        raise Exception("Faield to decode :(")
                 except Exception as e:
                     print(e)
                     return user_pb2.session(
@@ -112,6 +114,21 @@ class userServiceServicer(user_grpc.userServiceServicer):
                         timeLimit=''
                     )
     
+    def auth(self,req,ctx):
+        token = req.token
+        if not token:
+            return user_pb2.isSuccess(success=0,msg="you must be logged in")  
+        try:
+            decoded = jwt.decode(token, key, algorithms=['HS256',])
+            print(f"Decoded: {decoded}")
+            if decoded:
+                return user_pb2.isSuccess(success=1,msg="authenticated user")
+            else:
+                raise Exception("Failed to decode :(")
+        except Exception as e:
+            print(e)
+            return user_pb2.isSuccess(success=0,msg="you must be logged in") 
+
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
     user_grpc.add_userServiceServicer_to_server(
