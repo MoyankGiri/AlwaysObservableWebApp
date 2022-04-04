@@ -7,6 +7,15 @@ service postService{
     rpc readOne (uid) returns (aPost);
     rpc updatePost (aPost) returns (aPost);
     rpc deletePost (uid) returns (isSuccess);
+    rpc fetchRecent (when) returns (Posts);
+}
+
+message Posts{
+    repeated postPreview posts=1;
+}
+
+message when{
+    int32 duration=1; //duration like 30mins,1hr,etc..
 }
 
 message isSuccess{
@@ -38,4 +47,10 @@ message newPost{
     string title =1;
     string body = 2;
     string author =3;
+}
+
+message postPreview{
+    string title=1;
+    string author=2;
+    string creationDate=3;
 }

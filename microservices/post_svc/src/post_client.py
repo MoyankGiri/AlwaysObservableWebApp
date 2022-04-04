@@ -82,13 +82,21 @@ async def create_post(stub:post_pb2_grpc.postServiceServicer):
         print("body:",post.body)
         print("----------POST CREATED-------")
 
+async def fetchRecent(stub:post_pb2_grpc.postServiceServicer):
+    allPosts = None
+    try:
+        allPosts = await stub.fetchRecent(post_pb2.when(duration=525960))
+        print("All Posts:")
+        print(allPosts)
+    except Exception as e:
+        print(f'[ERROR]: {e}')
 
 async def main():
     async with grpc.aio.insecure_channel('localhost:50051') as channel:
         stub = post_pb2_grpc.postServiceStub(channel)
 
-        print("-------CREATE POST-------")
-        await create_post(stub)
+        # print("-------CREATE POST-------")
+        # await create_post(stub)
 
         # print("-------------READ POST-------------")
         # await read_post(stub)
@@ -97,7 +105,10 @@ async def main():
         # await update_post(stub)
 
         # print("-------DELETE POST---------")
-        await delete_post(stub)
+        # await delete_post(stub)
+
+        #print("----------FETCH RECENT POSTS-----")
+        await fetchRecent(stub)
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)

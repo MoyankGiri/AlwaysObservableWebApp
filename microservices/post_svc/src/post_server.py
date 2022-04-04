@@ -1,7 +1,8 @@
 import logging
-from datetime import date
+from datetime import date, datetime, timedelta
 
 from concurrent import futures
+from time import strptime
 import grpc
 
 import post_pb2
@@ -13,10 +14,13 @@ from bson.objectid import ObjectId
 
 class postServiceServicer(post_grpc.postServiceServicer):
     def makeConnection(self):
-        print("Creating connection to mongodb....")
+        # print("Creating connection to mongodb....")
         self.conn = pymongo.MongoClient("mongodb://localhost:27017/")
         self.db = self.conn["blog"]
         self.collection = self.db["posts"]
+
+        # print("Deleting data...")
+        # self.collection.delete_many({})
 
     def deletePost(self,req,ctx):
         self.makeConnection()
@@ -81,7 +85,8 @@ class postServiceServicer(post_grpc.postServiceServicer):
         print("Creating row....")
         ret = None
 
-        today = date.today().strftime("%d-%m-%y")
+        # today = date.today().strftime("%d-%m-%y")
+        today = datetime.now()
         try:
             #insert row of data
             data = {
@@ -114,6 +119,21 @@ class postServiceServicer(post_grpc.postServiceServicer):
         finally:
             self.conn.close()
             return ret
+
+    def fetchRecent(self,req,ctx):
+        self.makeConnection()
+
+        allPosts = post_pb2.Posts()
+        constraint = datetime.now() - timedelta(minutes=int(req.duration))
+
+        allRows = self.collection.find({})
+        for row in allRows:
+            # print(f'ROW {row}')
+            currDate = row['creationDate']
+            if currDate > constraint:
+                allPosts.posts.append(post_pb2.postPreview(title=row['title'],author=row['author'],creationDate=str(row['creationDate'])))
+                
+        return allPosts
 
     def readOne(self,req,ctx):
         print("req:",req)
