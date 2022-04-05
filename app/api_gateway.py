@@ -6,7 +6,9 @@ import grpc
 
 import sys
 sys.path.insert(0,'/home/chandradhar/Projects/CTY/AlwaysObservableWebApp/microservices/auth_svc/src')
+sys.path.insert(0,'/home/chandradhar/Projects/CTY/AlwaysObservableWebApp/microservices/post_svc/src')
 import user_pb2_grpc,user_pb2
+import post_pb2_grpc,post_pb2
 
 from flask import Flask,render_template,request
 app = Flask(__name__)
@@ -45,8 +47,16 @@ async def makeBlog(blog):
     async with grpc.aio.insecure_channel('localhost:50051') as channel:
         try:
             aPost = None
-            stub = post_pb
-            aPost = 
+            stub = post_pb2_grpc.postServiceStub(channel)
+            aPost = await stub.create(post_pb2.newPost(title=input(),body=input(),author=input()))
+
+            if not aPost or aPost.id=='':
+                raise Exception("Empty posts")
+            else:
+                
+        except Exception as E:
+            flash("Unable to create Post,try again...")
+            return render_template('create_blog.html')
 #*********GRPC Client Code*******************************
 
 #**********ROUTES**************************************
@@ -89,6 +99,7 @@ async def login():
 
 @app.route("/createBlog",methods=['POST','GET'])
 async def createBlog():
+    #verify jwt
     if request.method == 'GET':
         return render_template('create_blog.html')
     elif request.method == 'POST':
