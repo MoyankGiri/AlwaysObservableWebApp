@@ -1,5 +1,7 @@
 import asyncio
-from flask import request
+from cmath import log
+from crypt import methods
+from flask import flash, make_response, request
 import grpc
 
 import sys
@@ -8,6 +10,7 @@ import user_pb2_grpc,user_pb2
 
 from flask import Flask,render_template,request
 app = Flask(__name__)
+app.secret_key = 'abc'
 
 '''
 GRPC client side functions
@@ -26,6 +29,19 @@ async def signup(username,password):
             print(f"Success {success}")
             return success
 
+async def login(username,password):
+    success = {'success':0,'msg':'','token':'','timelimit':''}
+    try:
+        stub = user_pb2_grpc.userServiceServicer
+        success = await stub.login(user_pb2.aUser(username,password))
+        print(success)
+        return success
+    except Exception as e:
+        print(f'[ERROR]: {e}')
+    finally:
+        print(f"success {success}")
+
+
 @app.route("/",methods=['GET'])
 def homePage():
     return render_template('login.html')
@@ -36,12 +52,31 @@ async def createAccount():
         success = await signup(request.form.get('username'),request.form.get('password'))
         if success.success:
             #render success page and redirect to login UI
+            flash(success.msg)
             return render_template('login.html')
         else:
             #render the create Account page again
+            flash(success.msg)
             return render_template('signup.html')
     elif request.method=='GET':
         return render_template('signup.html')
+
+@app.route("/login",methods=['POST','GET'])
+async def login():
+    if request.method == 'GET':
+        return render_template('login.html')
+    elif request.methods=='POST':
+        success = await  login(request.form.get('username'),request.form.get('password'))
+        if success.success:
+            flash(success.msg)
+            response = make_response(render_template('homepage.html'))
+            response.headers.set("jwt_token",success.token)
+            return response
+        else:
+            flash(success.msg)
+            response = make_response(render_template('login.html'))
+            response.headers.set("jwt_token",'')
+            return response
 
 if __name__ == '__main__':
     app.debug = True

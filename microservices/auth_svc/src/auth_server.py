@@ -43,10 +43,11 @@ class userServiceServicer(user_grpc.userServiceServicer):
 
             #search if user already exists
             res = self.collection.find_one({'username':username})
+            print(f'Found in db: {res}')
             if res:
                 return user_pb2.isSuccess(
                     success=0,
-                    msg="User already exists in database,please login..."
+                    msg="Account already exists in database,please login..."
                 )
             else:
                 print("New user!!!")
@@ -55,12 +56,12 @@ class userServiceServicer(user_grpc.userServiceServicer):
                 if rec_id:
                     return user_pb2.isSuccess(
                         success=1,
-                        msg = "Inserted user into db!"
+                        msg = "Account created successfully,please login..."
                     )
                 else:
                     return user_pb2.isSuccess(
                         success=0,
-                        msg = "Unable to insert into db :(, retry.."
+                        msg = "Unable to create account into db :(, retry.."
                     )
         except Exception as e:
             print(e)
