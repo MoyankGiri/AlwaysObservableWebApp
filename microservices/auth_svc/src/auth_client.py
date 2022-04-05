@@ -1,7 +1,5 @@
 import asyncio
-from cmath import log
 import logging
-from turtle import st
 import grpc
 import user_pb2_grpc
 import user_pb2

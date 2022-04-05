@@ -15,7 +15,7 @@ message Posts{
 }
 
 message when{
-    int32 duration=1; //duration like 30mins,1hr,etc..
+    int32 duration=1; //duration  in minutes like 30mins,60min,etc..
 }
 
 message isSuccess{
