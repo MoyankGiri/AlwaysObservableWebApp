@@ -1,3 +1,5 @@
+Steps to generate the grpc python code:
+
 cd /home/chandradhar/Projects/CTY/AlwaysObservableWebApp
 
 source venv/bin/activate
@@ -10,3 +12,9 @@ For client and server:
 source /venv/bin/activate
 clear;python3 post_server.py   
 ❯ clear;python3 post_client.py   
+
+Steps to run the flask app:
+
+run the grpc server for the required microservice
+change the directory of the auth_svc according to your system
+then run the api gateway
