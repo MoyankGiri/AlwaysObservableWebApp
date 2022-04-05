@@ -29,17 +29,19 @@ async def signup(username,password):
             print(f"Success {success}")
             return success
 
-async def login(username,password):
-    success = {'success':0,'msg':'','token':'','timelimit':''}
-    try:
-        stub = user_pb2_grpc.userServiceServicer
-        success = await stub.login(user_pb2.aUser(username,password))
-        print(success)
-        return success
-    except Exception as e:
-        print(f'[ERROR]: {e}')
-    finally:
-        print(f"success {success}")
+async def signin(username,password):
+    print(f"********{username},{password}********")
+    async with grpc.aio.insecure_channel('localhost:50051') as channel:
+        success = {'success':0,'msg':'','token':'','timelimit':''}
+        try:
+            stub = user_pb2_grpc.userServiceStub(channel)
+            success = await stub.login(user_pb2.aUser(username=username,password=password))
+            print(success)
+            return success
+        except Exception as e:
+            print(f'[ERROR]: {e}')
+        finally:
+            print(f"success {success}")
 
 
 @app.route("/",methods=['GET'])
@@ -65,8 +67,8 @@ async def createAccount():
 async def login():
     if request.method == 'GET':
         return render_template('login.html')
-    elif request.methods=='POST':
-        success = await  login(request.form.get('username'),request.form.get('password'))
+    elif request.method=='POST':
+        success = await  signin(request.form.get('username'),request.form.get('password'))
         if success.success:
             flash(success.msg)
             response = make_response(render_template('homepage.html'))
