@@ -48,15 +48,16 @@ async def makeBlog(blog):
         try:
             aPost = None
             stub = post_pb2_grpc.postServiceStub(channel)
-            aPost = await stub.create(post_pb2.newPost(title=input(),body=input(),author=input()))
+            aPost = await stub.create(post_pb2.newPost(title=blog['title'],body=blog['body'],author=blog['author']))
 
             if not aPost or aPost.id=='':
                 raise Exception("Empty posts")
             else:
-                
+                return render_template('display_blog.html',result=aPost)
         except Exception as E:
             flash("Unable to create Post,try again...")
             return render_template('create_blog.html')
+            
 #*********GRPC Client Code*******************************
 
 #**********ROUTES**************************************
