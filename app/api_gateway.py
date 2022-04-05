@@ -12,9 +12,7 @@ from flask import Flask,render_template,request
 app = Flask(__name__)
 app.secret_key = 'abc'
 
-'''
-GRPC client side functions
-'''
+#*********GRPC Client Code*******************************
 async def signup(username,password):
     print(f"********{username},{password}********")
     async with grpc.aio.insecure_channel('localhost:50051') as channel:
@@ -43,6 +41,15 @@ async def signin(username,password):
         finally:
             print(f"success {success}")
 
+async def makeBlog(blog):
+    async with grpc.aio.insecure_channel('localhost:50051') as channel:
+        try:
+            aPost = None
+            stub = post_pb
+            aPost = 
+#*********GRPC Client Code*******************************
+
+#**********ROUTES**************************************
 
 @app.route("/",methods=['GET'])
 def homePage():
@@ -79,6 +86,17 @@ async def login():
             response = make_response(render_template('login.html'))
             response.headers.set("jwt_token",'')
             return response
+
+@app.route("/createBlog",methods=['POST','GET'])
+async def createBlog():
+    if request.method == 'GET':
+        return render_template('create_blog.html')
+    elif request.method == 'POST':
+        return render_template('create_blog.html')
+
+
+
+#**********ROUTES**************************************
 
 if __name__ == '__main__':
     app.debug = True
