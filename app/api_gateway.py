@@ -1,6 +1,7 @@
 import asyncio
 from cmath import log
 from crypt import methods
+from unittest import result
 from flask import flash, make_response, request
 import grpc
 
@@ -43,6 +44,19 @@ async def signin(username,password):
         finally:
             print(f"success {success}")
 
+async def authroize_user(token):
+    async with grpc.aio.insecure_channel('localhost:50051') as channel:
+        success = None
+        try:
+            stub =user_pb2_grpc.userServiceServicer(channel)
+            succeess = await stub.auth(user_pb2.header(token=token))
+
+            if not succeess or not success.success:
+                raise Exception("User not authenticated")
+        except Exception as e:
+            return False
+        return True
+
 async def makeBlog(blog):
     async with grpc.aio.insecure_channel('localhost:50051') as channel:
         try:
@@ -57,7 +71,7 @@ async def makeBlog(blog):
         except Exception as E:
             flash("Unable to create Post,try again...")
             return render_template('create_blog.html')
-            
+
 #*********GRPC Client Code*******************************
 
 #**********ROUTES**************************************
@@ -89,24 +103,25 @@ async def login():
         success = await  signin(request.form.get('username'),request.form.get('password'))
         if success.success:
             flash(success.msg)
-            response = make_response(render_template('homepage.html'))
-            response.headers.set("jwt_token",success.token)
+            response = make_response(render_template('homepage.html',result=success.token))
+            # response.headers.set("jwt_token",success.token)
             return response
         else:
             flash(success.msg)
-            response = make_response(render_template('login.html'))
-            response.headers.set("jwt_token",'')
+            response = make_response(render_template('login.html',result = ''))
+            # response.headers.set("jwt_token",'')
             return response
 
 @app.route("/createBlog",methods=['POST','GET'])
 async def createBlog():
-    #verify jwt
-    if request.method == 'GET':
-        return render_template('create_blog.html')
-    elif request.method == 'POST':
-        return render_template('create_blog.html')
-
-
+    print(f"********{request.headers}#########")
+    if await authroize_user(request.headers['jwt_token']):
+        if request.method == 'GET':
+            return render_template('create_blog.html')
+        elif request.method == 'POST':
+            return render_template('create_blog.html')
+    else:
+        return render_template('login.html')
 
 #**********ROUTES**************************************
 
