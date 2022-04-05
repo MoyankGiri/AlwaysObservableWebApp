@@ -104,18 +104,18 @@ async def login():
         if success.success:
             flash(success.msg)
             response = make_response(render_template('homepage.html',result=success.token))
-            # response.headers.set("jwt_token",success.token)
+            # response.headers.set("token",success.token)
             return response
         else:
             flash(success.msg)
             response = make_response(render_template('login.html',result = ''))
-            # response.headers.set("jwt_token",'')
+            # response.headers.set("token",'')
             return response
 
 @app.route("/createBlog",methods=['POST','GET'])
 async def createBlog():
     print(f"********{request.headers}#########")
-    if await authroize_user(request.headers['jwt_token']):
+    if await authroize_user(request.headers['token']):
         if request.method == 'GET':
             return render_template('create_blog.html')
         elif request.method == 'POST':
