@@ -6,10 +6,6 @@
 </head>    
 <body>    
     <center> <h1> Login </h1> </center>  
-    {%for token in result.item()%} 
-    <script type="text/javascript">
-        localStorage.setItem("token","{{token}}")
-    </script>
     {% with message = get_flashed_messages()[-1]%}
         <p>{{message}}</p>
     {%endwith%}

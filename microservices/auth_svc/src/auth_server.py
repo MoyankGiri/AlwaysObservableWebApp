@@ -123,6 +123,7 @@ class userServiceServicer(user_grpc.userServiceServicer):
             decoded = jwt.decode(token, key, algorithms=['HS256',])
             print(f"Decoded: {decoded}")
             if decoded:
+                print("Successful!!")
                 return user_pb2.isSuccess(success=1,msg="authenticated user")
             else:
                 raise Exception("Failed to decode :(")

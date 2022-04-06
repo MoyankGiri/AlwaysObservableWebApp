@@ -3,6 +3,7 @@ from cmath import log
 from crypt import methods
 from unittest import result
 from flask import flash, make_response, request
+from flask_jsglue import JSGlue
 import grpc
 
 import sys
@@ -14,6 +15,7 @@ import post_pb2_grpc,post_pb2
 from flask import Flask,render_template,request
 app = Flask(__name__)
 app.secret_key = 'abc'
+jsglue = JSGlue(app)
 
 #*********GRPC Client Code*******************************
 async def signup(username,password):
@@ -45,17 +47,25 @@ async def signin(username,password):
             print(f"success {success}")
 
 async def authroize_user(token):
+    print("Auth Middlewear kickin...")
     async with grpc.aio.insecure_channel('localhost:50051') as channel:
-        success = None
+        result = None
         try:
-            stub =user_pb2_grpc.userServiceServicer(channel)
-            succeess = await stub.auth(user_pb2.header(token=token))
+            print(f"try with token {token}")
+            stub = user_pb2_grpc.userServiceStub(channel)
+            result = await stub.auth(user_pb2.header(token=str(token)))
+            print(f"Success {result}")
+            print(result.success == True)
 
-            if not succeess or not success.success:
+            if not result or not result.success:
                 raise Exception("User not authenticated")
+            else:
+                print("Succssful auth!")
+                return True
         except Exception as e:
+            print("Unsuccessful auth :(")
+            print(e)
             return False
-        return True
 
 async def makeBlog(blog):
     async with grpc.aio.insecure_channel('localhost:50051') as channel:
@@ -103,20 +113,22 @@ async def login():
         success = await  signin(request.form.get('username'),request.form.get('password'))
         if success.success:
             flash(success.msg)
-            response = make_response(render_template('homepage.html',result=success.token))
-            # response.headers.set("token",success.token)
+            response = make_response(render_template('homepage.html',result={'token':success.token}))
             return response
         else:
             flash(success.msg)
-            response = make_response(render_template('login.html',result = ''))
-            # response.headers.set("token",'')
+            response = make_response(render_template('login.html'))
             return response
 
 @app.route("/createBlog",methods=['POST','GET'])
 async def createBlog():
-    print(f"********{request.headers}#########")
-    if await authroize_user(request.headers['token']):
+    print(f"********{request.args.get('token')}#########")
+    # authRes = await authroize_user(request.headers['Token'])
+    authRes = await authroize_user(request.args.get('token'))
+    if authRes:
+        print("Authorized user!!!")
         if request.method == 'GET':
+            print("Redirect to create blog....")
             return render_template('create_blog.html')
         elif request.method == 'POST':
             return render_template('create_blog.html')
