@@ -2,32 +2,20 @@
 <html>
 
 <head>
-  {{JSGlue.include()}}
   <title>Welcome Page</title>
 </head>
 
 <body>
-  {%for key,token in result.items()%} 
-    <script type="text/javascript">
-        // alert(`Token is ${"{{token}}"}`)
-        localStorage.setItem("token","{{token}}")
-    </script>
-  {%endfor%}
-
   <h1>Blogging Website</h1>
   <h2>Things you can do:</h2>
 
   <p>Create Blog</p>
   <p>Read Blogs</p>
   <p>Edit Blogs</p>
-  <button onclick="setHeader()">Create blog</button>
+  <button onclick="load_blog()">Create blog</button>
   <script>
-    function setHeader(){
-      var item = localStorage.getItem("token");
-      alert(`Token retrieved`);
-      url = Flask.url_for("createBlog",{token:item})
-      alert(url);
-      location.href = url;
+    function load_blog(){
+      window.location="{{url_for('createBlog')}}";
     }
   </script>
 </body>

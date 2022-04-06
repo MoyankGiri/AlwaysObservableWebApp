@@ -1,9 +1,5 @@
 import asyncio
-from cmath import log
-from crypt import methods
-from unittest import result
 from flask import flash, make_response, request
-from flask_jsglue import JSGlue
 import grpc
 
 import sys
@@ -15,7 +11,6 @@ import post_pb2_grpc,post_pb2
 from flask import Flask,render_template,request
 app = Flask(__name__)
 app.secret_key = 'abc'
-jsglue = JSGlue(app)
 
 #*********GRPC Client Code*******************************
 async def signup(username,password):
@@ -110,21 +105,21 @@ async def login():
     if request.method == 'GET':
         return render_template('login.html')
     elif request.method=='POST':
-        success = await  signin(request.form.get('username'),request.form.get('password'))
-        if success.success:
-            flash(success.msg)
-            response = make_response(render_template('homepage.html',result={'token':success.token}))
+        session = await  signin(request.form.get('username'),request.form.get('password'))
+        if session.success:
+            flash(session.msg)
+            response = make_response(render_template('homepage.html'))
+            response.set_cookie('token',session.token)
             return response
         else:
-            flash(success.msg)
+            flash(session.msg)
             response = make_response(render_template('login.html'))
             return response
 
 @app.route("/createBlog",methods=['POST','GET'])
 async def createBlog():
-    print(f"********{request.args.get('token')}#########")
     # authRes = await authroize_user(request.headers['Token'])
-    authRes = await authroize_user(request.args.get('token'))
+    authRes = await authroize_user(request.cookies.get('token'))
     if authRes:
         print("Authorized user!!!")
         if request.method == 'GET':
