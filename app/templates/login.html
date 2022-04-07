@@ -1,24 +1,22 @@
-<!DOCTYPE html>   
-<html>   
-<head>  
-<meta charset="utf-8" />
-<title> Login </title>    
-</head>    
-<body>    
-    <center> <h1> Login </h1> </center>  
-    {% with message = get_flashed_messages()[-1]%}
-        <p>{{message}}</p>
-    {%endwith%}
-    <form action="/login" method="post">  
-        <div class="container">   
-            <label>Username : </label>   
-            <input type="text" placeholder="Username" name="username" required>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"> 
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
 
-            <label>Password : </label>   
-            <input type="password" placeholder="Enter Password" name="password" required>  
-
-            <button type="submit">login</button>    
-        </div>   
-    </form>     
-</body>     
-</html>  
+<form action="/login" method="post">
+  <div class="form-group row">
+    <label for="username" class="col-4 col-form-label">Username</label> 
+    <div class="col-8">
+      <input id="username" name="username" placeholder="username" type="text" required="required" class="form-control">
+    </div>
+  </div>
+  <div class="form-group row">
+    <label for="password" class="col-4 col-form-label">Password</label> 
+    <div class="col-8">
+      <input id="password" name="password" placeholder="password" type="password" required="required" class="form-control">
+    </div>
+  </div> 
+  <div class="form-group row">
+    <div class="offset-4 col-8">
+      <button name="submit" type="submit" class="btn btn-primary">Submit</button>
+    </div>
+  </div>
+</form>

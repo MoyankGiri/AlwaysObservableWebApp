@@ -1,31 +1,29 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <title>Bootstrap Example</title>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
-</head>
-<body>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"> 
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
 
-  <div class="rendered-form">
-    <div class="">
-        <h1 access="false" id="control-3650140">Create a blog now</h1></div>
-    <div class="formbuilder-text form-group field-text-1649227849221">
-        <label for="text-1649227849221" class="formbuilder-text-label">Title</label>
-        <input type="text" class="form-control" name="text-1649227849221" access="false" id="text-1649227849221">
-    </div>
-    <div class="formbuilder-text form-group field-text-1649227797435">
-        <label for="text-1649227797435" class="formbuilder-text-label">Author name</label>
-        <input type="text" class="form-control" name="text-1649227797435" access="false" id="text-1649227797435">
-    </div>
-    <div class="formbuilder-textarea form-group field-textarea-1649227813896">
-        <label for="textarea-1649227813896" class="formbuilder-textarea-label">Content</label>
-        <textarea type="textarea" class="form-control" name="textarea-1649227813896" access="false" id="textarea-1649227813896"></textarea>
+<form action="/createBlog" method="post">
+  <div class="form-group row">
+    <label for="title" class="col-4 col-form-label">Title</label> 
+    <div class="col-8">
+      <input id="title" name="title" placeholder="title" type="text" required="required" class="form-control" spellcheck="false" data-ms-editor="true">
     </div>
   </div>
-
-</body>
-</html>
+  <div class="form-group row">
+    <label for="author" class="col-4 col-form-label">Author</label> 
+    <div class="col-8">
+      <input id="author" name="author" placeholder="author" type="text" required="required" class="form-control" spellcheck="false" data-ms-editor="true">
+    </div>
+  </div>
+  <div class="form-group row">
+    <label for="body" class="col-4 col-form-label">Content</label> 
+    <div class="col-8">
+      <textarea id="body" name="body" cols="40" rows="5" aria-describedby="bodyHelpBlock" required="required" class="form-control" spellcheck="false" data-ms-editor="true"></textarea> 
+      <span id="bodyHelpBlock" class="form-text text-muted">Pen down your thoughts</span>
+    </div>
+  </div> 
+  <div class="form-group row">
+    <div class="offset-4 col-8">
+      <button name="submit" type="submit" class="btn btn-primary">Publish</button>
+    </div>
+  </div>
+</form>
