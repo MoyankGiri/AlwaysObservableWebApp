@@ -27,6 +27,17 @@ async def signup(username,password):
             print(f"Success {success}")
             return success
 
+async def delete_post(blogid):
+    async with grpc.aio.insecure_channel('localhost:50051') as channel:
+        isSuccess = None
+        try:
+            stub = post_pb2_grpc.postServiceStub(channel)
+            isSuccess = await stub.deletePost(user_pb2.uuid(id=blogid))
+            return isSuccess
+        except Exception as e:
+            print(f"Error {e}")
+            return isSuccess
+
 async def signin(username,password):
     print(f"********{username},{password}********")
     async with grpc.aio.insecure_channel('localhost:50051') as channel:
@@ -41,7 +52,7 @@ async def signin(username,password):
         finally:
             print(f"success {success}")
 
-async def authroize_user(token):
+async def authorize_user(token):
     print("Auth Middlewear kickin...")
     async with grpc.aio.insecure_channel('localhost:50051') as channel:
         result = None
@@ -106,20 +117,24 @@ async def login():
         return render_template('login.html')
     elif request.method=='POST':
         session = await  signin(request.form.get('username'),request.form.get('password'))
-        if session.success:
-            flash(session.msg)
-            response = make_response(render_template('homepage.html'))
-            response.set_cookie('token',session.token)
-            return response
-        else:
-            flash(session.msg)
-            response = make_response(render_template('login.html'))
-            return response
+        try:
+            if session.success:
+                flash(session.msg)
+                response = make_response(render_template('homepage.html'))
+                response.set_cookie('token',session.token)
+                return response
+            else:
+                flash(session.msg)
+                response = make_response(render_template('login.html'))
+                return response
+        except Exception as e:
+            print(f'Error {e}')
+            return render_template('login.html')
 
 @app.route("/createBlog",methods=['POST','GET'])
 async def createBlog():
     # authRes = await authroize_user(request.headers['Token'])
-    authRes = await authroize_user(request.cookies.get('token'))
+    authRes = await authorize_user(request.cookies.get('token'))
     if authRes:
         print("Authorized user!!!")
         if request.method == 'GET':
@@ -129,6 +144,18 @@ async def createBlog():
             return render_template('create_blog.html')
     else:
         return render_template('login.html')
+
+@app.route("/deleteBlog",methods=['POST','GET'])
+async def deleteBlog():
+    authRes = await authorize_user(request.cookies.get("token"))
+    if authRes:
+        print("User Authorized!!")
+        if request.method == 'POST':
+            isSuccess = delete_post(request.form.get("blogid"))
+            if isSuccess.success:
+                return render_template('delete_success.html')
+            else:
+                return render_template('delete_fail.html')
 
 #**********ROUTES**************************************
 
