@@ -136,7 +136,7 @@ def serve():
     user_grpc.add_userServiceServicer_to_server(
         userServiceServicer(),server
     )
-    server.add_insecure_port('[::]:50051')
+    server.add_insecure_port('[::]:50056')
     server.start()
     server.wait_for_termination()
 

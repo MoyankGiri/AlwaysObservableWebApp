@@ -1,4 +1,3 @@
-import asyncio
 from flask import flash, make_response, request
 import grpc
 
@@ -13,13 +12,21 @@ app = Flask(__name__)
 app.secret_key = 'abc'
 
 #*********GRPC Client Code*******************************
-async def signup(username,password):
-    print(f"********{username},{password}********")
-    async with grpc.aio.insecure_channel('localhost:50051') as channel:
+class apiClient:
+    def __init__(self) -> None:
+        #good practice to reuse channels and stubs across multiple connections
+        post_channel = grpc.insecure_channel('localhost:50051')
+        user_channel = grpc.insecure_channel('localhost:50056')
+        print(f"Post Channel {post_channel}")
+        print(f"User Channel {user_channel}")
+        self.user_stub = user_pb2_grpc.userServiceStub(user_channel)
+        self.post_stub = post_pb2_grpc.postServiceStub(post_channel)
+    
+    def signup(self,username,password):
+        print(f"********{username},{password}********")
         success = {'success': False}
         try:
-            stub = user_pb2_grpc.userServiceStub(channel)
-            success = await stub.createAccount(user_pb2.aUser(username=username,password=password))
+            success = self.user_stub.createAccount(user_pb2.aUser(username=username,password=password))
             print(success)
         except Exception as e:
             print(f"[ERROR]: {e}")
@@ -27,39 +34,46 @@ async def signup(username,password):
             print(f"Success {success}")
             return success
 
-async def delete_post(blogid):
-    async with grpc.aio.insecure_channel('localhost:50051') as channel:
-        isSuccess = None
+    def signup(self,username,password):
+        print(f"********{username},{password}********")
         try:
-            stub = post_pb2_grpc.postServiceStub(channel)
-            isSuccess = await stub.deletePost(user_pb2.uuid(id=blogid))
+            success = self.user_stub.createAccount(user_pb2.aUser(username=username,password=password))
+            print(success)
+        except Exception as e:
+            print(f"[ERROR]: {e}")
+        finally:
+            print(f"Success {success}")
+            return success
+            
+    def delete_post(self,blogid):
+        print(f"********{blogid}********")
+        try:
+            isSuccess = self.post_stub.deletePost(user_pb2.uuid(id=blogid))
             return isSuccess
         except Exception as e:
             print(f"Error {e}")
             return isSuccess
 
-async def signin(username,password):
-    print(f"********{username},{password}********")
-    async with grpc.aio.insecure_channel('localhost:50051') as channel:
+    def signin(self,username,password):
+        print(f"********{username},{password}********")
         success = {'success':0,'msg':'','token':'','timelimit':''}
         try:
-            stub = user_pb2_grpc.userServiceStub(channel)
-            success = await stub.login(user_pb2.aUser(username=username,password=password))
+            success = self.user_stub.login(user_pb2.aUser(username=username,password=password))
             print(success)
             return success
         except Exception as e:
             print(f'[ERROR]: {e}')
+            return success
         finally:
             print(f"success {success}")
+            return success
 
-async def authorize_user(token):
-    print("Auth Middlewear kickin...")
-    async with grpc.aio.insecure_channel('localhost:50051') as channel:
+    def authorize_user(self,token):
+        print("Auth Middlewear kickin...")
         result = None
         try:
             print(f"try with token {token}")
-            stub = user_pb2_grpc.userServiceStub(channel)
-            result = await stub.auth(user_pb2.header(token=str(token)))
+            result = self.user_stub.auth(user_pb2.header(token=str(token)))
             print(f"Success {result}")
             print(result.success == True)
 
@@ -73,12 +87,10 @@ async def authorize_user(token):
             print(e)
             return False
 
-async def makeBlog(blog):
-    async with grpc.aio.insecure_channel('localhost:50051') as channel:
+    def makeBlog(self,blog):
         try:
             aPost = None
-            stub = post_pb2_grpc.postServiceStub(channel)
-            aPost = await stub.create(post_pb2.newPost(title=blog['title'],body=blog['body'],author=blog['author']))
+            aPost = self.post_stub.create(post_pb2.newPost(title=blog['title'],body=blog['body'],author=blog['author']))
 
             if not aPost or aPost.id=='':
                 raise Exception("Empty posts")
@@ -90,7 +102,7 @@ async def makeBlog(blog):
 
 #*********GRPC Client Code*******************************
 
-#**********ROUTES**************************************
+apic = apiClient()
 
 @app.route("/",methods=['GET'])
 def homePage():
@@ -99,7 +111,7 @@ def homePage():
 @app.route("/createAccount",methods=['POST','GET'])
 async def createAccount():
     if request.method=='POST':
-        success = await signup(request.form.get('username'),request.form.get('password'))
+        success = apic.signup(request.form.get('username'),request.form.get('password'))
         if success.success:
             #render success page and redirect to login UI
             flash(success.msg)
@@ -116,7 +128,7 @@ async def login():
     if request.method == 'GET':
         return render_template('login.html')
     elif request.method=='POST':
-        session = await  signin(request.form.get('username'),request.form.get('password'))
+        session = apic.signin(request.form.get('username'),request.form.get('password'))
         try:
             if session.success:
                 flash(session.msg)
@@ -134,7 +146,7 @@ async def login():
 @app.route("/createBlog",methods=['POST','GET'])
 async def createBlog():
     # authRes = await authroize_user(request.headers['Token'])
-    authRes = await authorize_user(request.cookies.get('token'))
+    authRes = apic.authorize_user(request.cookies.get('token'))
     if authRes:
         print("Authorized user!!!")
         if request.method == 'GET':
@@ -147,17 +159,15 @@ async def createBlog():
 
 @app.route("/deleteBlog",methods=['POST','GET'])
 async def deleteBlog():
-    authRes = await authorize_user(request.cookies.get("token"))
+    authRes = apic.authorize_user(request.cookies.get("token"))
     if authRes:
         print("User Authorized!!")
         if request.method == 'POST':
-            isSuccess = delete_post(request.form.get("blogid"))
+            isSuccess = apic.delete_post(request.form.get("blogid"))
             if isSuccess.success:
                 return render_template('delete_success.html')
             else:
                 return render_template('delete_fail.html')
-
-#**********ROUTES**************************************
 
 if __name__ == '__main__':
     app.debug = True
