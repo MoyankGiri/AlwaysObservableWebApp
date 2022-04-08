@@ -21,6 +21,7 @@ message aUser{
 message isSuccess{
     bool success=1;
     string msg=2;
+    string userID=3;
 }
 
 message session{

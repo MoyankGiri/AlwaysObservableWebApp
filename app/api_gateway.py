@@ -1,3 +1,4 @@
+from crypt import methods
 from flask import flash, make_response, request
 import grpc
 
@@ -34,6 +35,25 @@ class apiClient:
             print(f"Success {success}")
             return success
 
+    def createBlog(self,title,body,author,userID):
+        post = {
+                'id ': "",
+                'title' : "",
+                'body' : "",
+               'author' : "",
+                'creationDate' : "",
+                'lastUpdatedDate' : "",
+                'userID':""
+                }
+        try:
+            post = self.post_stub.create(post_pb2.newPost(title=title,body=body,author=author,userID=userID))
+            print("User's post:",post)
+            return post
+
+        except Exception as e:
+            print("[ERROR]:",e)
+            return post
+
     def signup(self,username,password):
         print(f"********{username},{password}********")
         try:
@@ -45,10 +65,10 @@ class apiClient:
             print(f"Success {success}")
             return success
             
-    def delete_post(self,blogid):
-        print(f"********{blogid}********")
+    def delete_post(self,blogid,userid):
+        print(f"********{blogid,userid}********")
         try:
-            isSuccess = self.post_stub.deletePost(user_pb2.uuid(id=blogid))
+            isSuccess = self.post_stub.deletePost(user_pb2.uuid(id=blogid,userID=userid))
             return isSuccess
         except Exception as e:
             print(f"Error {e}")
@@ -56,21 +76,21 @@ class apiClient:
 
     def signin(self,username,password):
         print(f"********{username},{password}********")
-        success = {'success':0,'msg':'','token':'','timelimit':''}
+        session = {'success':0,'msg':'','token':'','timelimit':''}
         try:
-            success = self.user_stub.login(user_pb2.aUser(username=username,password=password))
-            print(success)
-            return success
+            session = self.user_stub.login(user_pb2.aUser(username=username,password=password))
+            print(session)
+            return session
         except Exception as e:
             print(f'[ERROR]: {e}')
-            return success
+            return session
         finally:
-            print(f"success {success}")
-            return success
+            print(f"success {session}")
+            return session
 
     def authorize_user(self,token):
         print("Auth Middlewear kickin...")
-        result = None
+        result = {'success':False,'msg':'unsuccessful auth','userID':''}
         try:
             print(f"try with token {token}")
             result = self.user_stub.auth(user_pb2.header(token=str(token)))
@@ -81,24 +101,11 @@ class apiClient:
                 raise Exception("User not authenticated")
             else:
                 print("Succssful auth!")
-                return True
+                return result
         except Exception as e:
             print("Unsuccessful auth :(")
             print(e)
-            return False
-
-    def makeBlog(self,blog):
-        try:
-            aPost = None
-            aPost = self.post_stub.create(post_pb2.newPost(title=blog['title'],body=blog['body'],author=blog['author']))
-
-            if not aPost or aPost.id=='':
-                raise Exception("Empty posts")
-            else:
-                return render_template('display_blog.html',result=aPost)
-        except Exception as E:
-            flash("Unable to create Post,try again...")
-            return render_template('create_blog.html')
+            return result
 
 #*********GRPC Client Code*******************************
 
@@ -108,6 +115,10 @@ apic = apiClient()
 def homePage():
     return render_template('login.html')
 
+@app.route("/home",methods=['GET'])
+def userHome():
+    return render_template('homepage.html')
+    
 @app.route("/createAccount",methods=['POST','GET'])
 def createAccount():
     if request.method=='POST':
@@ -129,14 +140,16 @@ def login():
         return render_template('login.html')
     elif request.method=='POST':
         session = apic.signin(request.form.get('username'),request.form.get('password'))
+        print(f"Login session *****{session}*****")
+
         try:
             if session.success:
-                flash(session.msg)
+                # flash(session.msg)
                 response = make_response(render_template('homepage.html'))
                 response.set_cookie('token',session.token)
                 return response
             else:
-                flash(session.msg)
+                # flash(session.msg)
                 response = make_response(render_template('login.html'))
                 return response
         except Exception as e:
@@ -145,15 +158,21 @@ def login():
 
 @app.route("/createBlog",methods=['POST','GET'])
 def createBlog():
+    print(f"******{request.form}****")
     # authRes = await authroize_user(request.headers['Token'])
     authRes = apic.authorize_user(request.cookies.get('token'))
-    if authRes:
+    print(authRes)
+    if authRes.success:
         print("Authorized user!!!")
         if request.method == 'GET':
             print("Redirect to create blog....")
             return render_template('create_blog.html')
         elif request.method == 'POST':
-            return render_template('create_blog.html')
+            aPost = apic.createBlog(request.form.get('title'),request.form.get('body'),request.form.get('body'),authRes.userID)
+            if aPost.id!='':
+                return render_template('success.html')
+            else:
+                return render_template('failed.html')
     else:
         return render_template('login.html')
 
@@ -166,10 +185,10 @@ def readBlogs():
 def deleteBlog():
     #check if the blog actually belongs to him
     authRes = apic.authorize_user(request.cookies.get("token"))
-    if authRes:
+    if authRes.success:
         print("User Authorized!!")
         if request.method == 'POST':
-            isSuccess = apic.delete_post(request.form.get("blogid"))
+            isSuccess = apic.delete_post(request.form.get("blogid"),authRes.userID)
             if isSuccess.success:
                 return render_template('delete_success.html')
             else:

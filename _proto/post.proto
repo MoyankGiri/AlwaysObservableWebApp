@@ -24,6 +24,7 @@ message isSuccess{
 
 message uid{
     string id=1;
+    string userID=2;
 }
 
 message updatePostItem{
@@ -41,12 +42,14 @@ message aPost{
     string author = 4;
     string creationDate = 5;
     string lastUpdatedDate = 6;
+    string userID = 7;
 }
 
 message newPost{
     string title =1;
     string body = 2;
     string author =3;
+    string userID = 4;
 }
 
 message postPreview{

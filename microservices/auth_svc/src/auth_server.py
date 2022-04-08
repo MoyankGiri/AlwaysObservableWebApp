@@ -1,4 +1,4 @@
-from base64 import encode
+from base64 import decode, encode
 from email.policy import default
 from json import dumps
 import logging
@@ -83,7 +83,8 @@ class userServiceServicer(user_grpc.userServiceServicer):
                 success = 0,
                 msg = "no account in db,redirecting to signup page...",
                 token='',
-                timeLimit=''
+                timeLimit='',
+                userID = ""
             )
         else:
             #username found in db,check if password matches
@@ -102,7 +103,7 @@ class userServiceServicer(user_grpc.userServiceServicer):
                             success = 1,
                             msg = "User found and password matched!",
                             token=token,
-                            timeLimit = jwt_expiry_time
+                            timeLimit = jwt_expiry_time,
                         )
                     else:
                         raise Exception("Faield to decode :(")
@@ -112,24 +113,24 @@ class userServiceServicer(user_grpc.userServiceServicer):
                         success = 0,
                         msg = "Invalid username or password!Try again!",
                         token='',
-                        timeLimit=''
+                        timeLimit='',
                     )
     
     def auth(self,req,ctx):
         token = req.token
         if not token:
-            return user_pb2.isSuccess(success=0,msg="")  
+            return user_pb2.isSuccess(success=0,msg="Not authorized",userID="")  
         try:
             decoded = jwt.decode(token, key, algorithms=['HS256',])
             print(f"Decoded: {decoded}")
             if decoded:
                 print("Successful!!")
-                return user_pb2.isSuccess(success=1,msg=decoded)
+                return user_pb2.isSuccess(success=1,msg="Successfull authorization",userID=str(decoded['username']))
             else:
                 raise Exception("Failed to decode :(")
         except Exception as e:
             print(e)
-            return user_pb2.isSuccess(success=0,msg="") 
+            return user_pb2.isSuccess(success=0,msg="Unable to authorized",userID="") 
 
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))

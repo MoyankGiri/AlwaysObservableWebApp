@@ -2,7 +2,7 @@ import logging
 from datetime import date, datetime, timedelta
 
 from concurrent import futures
-from time import strptime
+from time import strftime, strptime
 import grpc
 
 import post_pb2
@@ -29,7 +29,7 @@ class postServiceServicer(post_grpc.postServiceServicer):
 
         try:
             print("req",req)
-            res = self.collection.delete_one({"_id":ObjectId(req.id)})
+            res = self.collection.delete_one({"_id":ObjectId(req.id),"userID":req.userID})
             if not res.acknowledged:
                 raise ValueError("Unable to delete record from db!")
         finally:
@@ -94,29 +94,37 @@ class postServiceServicer(post_grpc.postServiceServicer):
                 "body":req.body,
                 "author":req.author,
                 "creationDate":today,
-                "lastUpdatedDate":today
+                "lastUpdatedDate":today,
+                "userID":req.userID
             }
-            rec_id = self.collection.insert_one(data)
-            print("Commited....")
+            print("Data to be inserted:",data)
+
+            rec_id = self.collection.insert_one(data).inserted_id
+            print("Commited post with id: ",rec_id)
 
             ret = post_pb2.aPost(
-                id=f"{rec_id.inserted_id}",
+                id=f"{rec_id}",
                 title=req.title,
                 body=req.body,
                 author=req.author,
-                creationDate=today,
-                lastUpdatedDate=today
+                creationDate=today.strftime("%m/%d/%Y, %H:%M:%S"),
+                lastUpdatedDate=today.strftime("%m/%d/%Y, %H:%M:%S"),
+                userID=req.userID
             )
-        except:
-             ret = post_pb2.aPost(
+            print("returning:",ret)
+            self.conn.close()
+            return ret
+        except Exception as e:
+            print("Exception?",e)
+            ret = post_pb2.aPost(
                 id = "",
                 title = "",
                 body = "",
                 author = "",
                 creationDate = "",
                 lastUpdatedDate = "",
+                userID=""
                 )
-        finally:
             self.conn.close()
             return ret
 
