@@ -109,7 +109,7 @@ def homePage():
     return render_template('login.html')
 
 @app.route("/createAccount",methods=['POST','GET'])
-async def createAccount():
+def createAccount():
     if request.method=='POST':
         success = apic.signup(request.form.get('username'),request.form.get('password'))
         if success.success:
@@ -124,7 +124,7 @@ async def createAccount():
         return render_template('signup.html')
 
 @app.route("/login",methods=['POST','GET'])
-async def login():
+def login():
     if request.method == 'GET':
         return render_template('login.html')
     elif request.method=='POST':
@@ -144,7 +144,7 @@ async def login():
             return render_template('login.html')
 
 @app.route("/createBlog",methods=['POST','GET'])
-async def createBlog():
+def createBlog():
     # authRes = await authroize_user(request.headers['Token'])
     authRes = apic.authorize_user(request.cookies.get('token'))
     if authRes:
@@ -157,8 +157,14 @@ async def createBlog():
     else:
         return render_template('login.html')
 
+@app.route("/readBlogs",methods=['GET'])
+def readBlogs():
+    #read all blocks
+    pass
+
 @app.route("/deleteBlog",methods=['POST','GET'])
-async def deleteBlog():
+def deleteBlog():
+    #check if the blog actually belongs to him
     authRes = apic.authorize_user(request.cookies.get("token"))
     if authRes:
         print("User Authorized!!")

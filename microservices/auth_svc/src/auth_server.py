@@ -118,18 +118,18 @@ class userServiceServicer(user_grpc.userServiceServicer):
     def auth(self,req,ctx):
         token = req.token
         if not token:
-            return user_pb2.isSuccess(success=0,msg="you must be logged in")  
+            return user_pb2.isSuccess(success=0,msg="")  
         try:
             decoded = jwt.decode(token, key, algorithms=['HS256',])
             print(f"Decoded: {decoded}")
             if decoded:
                 print("Successful!!")
-                return user_pb2.isSuccess(success=1,msg="authenticated user")
+                return user_pb2.isSuccess(success=1,msg=decoded)
             else:
                 raise Exception("Failed to decode :(")
         except Exception as e:
             print(e)
-            return user_pb2.isSuccess(success=0,msg="you must be logged in") 
+            return user_pb2.isSuccess(success=0,msg="") 
 
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
