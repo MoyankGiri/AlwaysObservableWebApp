@@ -107,7 +107,20 @@ class apiClient:
             print(e)
             return result
 
-#*********GRPC Client Code*******************************
+    def read_all(self,t):
+        result = []
+
+        try:
+            result = self.post_stub.fetchRecent(post_pb2.when(duration=t*24*60))
+            print("All posts are:",result)
+            return result
+
+        except Exception as e:
+            print("[ERROR]",e)
+
+        return result
+
+#*********GRPC Client Code ENDS*******************************
 
 apic = apiClient()
 
@@ -118,7 +131,7 @@ def homePage():
 @app.route("/home",methods=['GET'])
 def userHome():
     return render_template('homepage.html')
-    
+
 @app.route("/createAccount",methods=['POST','GET'])
 def createAccount():
     if request.method=='POST':
@@ -178,8 +191,19 @@ def createBlog():
 
 @app.route("/readBlogs",methods=['GET'])
 def readBlogs():
-    #read all blocks
-    pass
+    #read all blocks,no need to login
+    result = apic.read_all(7)
+    if request.method=='GET':
+        if result:
+            print("Result",result)
+            #display in the UI
+            return f'<html>{result}</html>'
+        else:
+            #display empty page
+            print("Nothing to fetch :(")
+            return '<html></html>'
+    else:
+        return render_template("homepage.html")
 
 @app.route("/deleteBlog",methods=['POST','GET'])
 def deleteBlog():
