@@ -67,8 +67,9 @@ class apiClient:
             
     def delete_post(self,blogid,userid):
         print(f"********{blogid,userid}********")
+        isSuccess={'success':False}
         try:
-            isSuccess = self.post_stub.deletePost(user_pb2.uuid(id=blogid,userID=userid))
+            isSuccess = self.post_stub.deletePost(post_pb2.uid(id=blogid,userID=userid))
             return isSuccess
         except Exception as e:
             print(f"Error {e}")
@@ -205,16 +206,17 @@ def readBlogs():
     else:
         return render_template("homepage.html")
 
-@app.route("/deleteBlog",methods=['POST','GET'])
+@app.route("/deleteBlog",methods=['GET'])
 def deleteBlog():
     #check if the blog actually belongs to him
     authRes = apic.authorize_user(request.cookies.get("token"))
     if authRes.success:
         print("User Authorized!!")
-        if request.method == 'POST':
-            isSuccess = apic.delete_post(request.form.get("blogid"),authRes.userID)
+        if request.method == 'GET':
+            isSuccess = apic.delete_post(request.args.get("blogid"),authRes.userID)
+            print("isSuccess",isSuccess)
             if isSuccess.success:
-                return render_template('delete_success.html')
+                return render_template('success.html')
             else:
                 return render_template('failed.html')
 

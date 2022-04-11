@@ -9,19 +9,21 @@
     
     {%for item in items%}
     <div class="card" style="width: 18rem;">
-        <div class="card-body">
+        <div class="card-body" id="{{item.id}}">
           <h5 class="card-title">{{item.title}}</h5>
           <h6 class="card-subtitle mb-2 text-muted">{{item.author}}</h6>
           <p class="card-text">Created On:{{item.creationDate}}</p>
-          <button type="button" class="btn btn-primary">Continue Reading</button>
+          <button id="del" type="button" class="btn btn-primary">Delete Blog</button>
         </div>
     </div>
     {%endfor%}
 </body>
 
 <script>
-    $("#post").click(function(event){
+    $("#del").click(function(event){
         alert(event.target.parentElement.id);
+        var bid = event.target.parentElement.id;
+        window.location = "{{url_for('deleteBlog')}}"+`?blogid=${bid}`;
     })
 </script>
 
