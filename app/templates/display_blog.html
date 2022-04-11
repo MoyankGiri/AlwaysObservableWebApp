@@ -2,15 +2,20 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
 </head>
 
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"> 
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+
 <body>
+    
     {%for item in items%}
-        <div id="{{item.id}}">
-            <div>Title {{item.title}}</div>
-            <div>Author {{item.author}}</div>
-            <div>Created on {{item.creationDate}}</div>
-            <div>Last Updated on {{item.lastUpdatedDate}}</div>
-            <button id="post">View post completely</button>
+    <div class="card" style="width: 18rem;">
+        <div class="card-body">
+          <h5 class="card-title">{{item.title}}</h5>
+          <h6 class="card-subtitle mb-2 text-muted">{{item.author}}</h6>
+          <p class="card-text">Created On:{{item.creationDate}}</p>
+          <button type="button" class="btn btn-primary">Continue Reading</button>
         </div>
+    </div>
     {%endfor%}
 </body>
 
@@ -19,3 +24,4 @@
         alert(event.target.parentElement.id);
     })
 </script>
+
