@@ -2,6 +2,7 @@ import logging
 from datetime import date, datetime, timedelta
 
 from concurrent import futures
+from multiprocessing.sharedctypes import Value
 from time import strftime, strptime
 import grpc
 
@@ -153,28 +154,32 @@ class postServiceServicer(post_grpc.postServiceServicer):
             print("row obtained",row)
 
             if not row:
-                ret = post_pb2.aPost(
+                raise ValueError("No object found in db!")
+            else:
+                self.conn.close()
+
+                return post_pb2.aPost(
+                id=f'{req.id}',
+                title=row["title"],
+                body=row["body"],
+                author=row["author"],
+                creationDate=str(row["creationDate"]),
+                lastUpdatedDate=str(row["lastUpdatedDate"]),
+                userID=row["userID"]
+                )
+        except Exception as e:
+            print("[ERROR]",e)
+            self.conn.close()
+
+            return post_pb2.aPost(
                     id = "",
                     title = "",
                     body = "",
                     author = "",
                     creationDate = "",
                     lastUpdatedDate = "",
+                    userID=""
                     )
-            else:
-                raise ValueError("No object found in db!")
-        except:
-            ret = post_pb2.aPost(
-                id=f'{req.id}',
-                title=row["title"],
-                body=row["body"],
-                author=row["author"],
-                creationDate=row["creationDate"],
-                lastUpdatedDate=row["lastUpdatedDate"]
-                )
-        finally:
-            self.conn.close()
-            return ret
 
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))

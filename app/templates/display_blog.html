@@ -14,6 +14,7 @@
           <h6 class="card-subtitle mb-2 text-muted">{{item.author}}</h6>
           <p class="card-text">Created On:{{item.creationDate}}</p>
           <button id="del" type="button" class="btn btn-primary">Delete Blog</button>
+          <button id="see" type="button" class="btn btn-primary">Continue Reading</button>
         </div>
     </div>
     {%endfor%}
@@ -22,8 +23,15 @@
 <script>
     $("#del").click(function(event){
         alert(event.target.parentElement.id);
+        //bid->blog id
         var bid = event.target.parentElement.id;
         window.location = "{{url_for('deleteBlog')}}"+`?blogid=${bid}`;
+    })
+
+    $("#see").click(function(event){
+        var blogid = event.target.parentElement.id;
+        alert(blogid)
+        window.location = "{{url_for('readOne')}}"+`?blogid=${blogid}`;
     })
 </script>
 

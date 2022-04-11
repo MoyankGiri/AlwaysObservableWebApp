@@ -1,4 +1,5 @@
 from crypt import methods
+from turtle import pos
 from flask import flash, make_response, request
 import grpc
 
@@ -121,6 +122,14 @@ class apiClient:
 
         return result
 
+    def read_one(self,blogid):
+        post = None
+        try:
+            post = self.post_stub.readOne(post_pb2.uid(id=blogid))
+            return post
+        except Exception as e:
+            print("[ERROR]:",e)
+
 #*********GRPC Client Code ENDS*******************************
 
 apic = apiClient()
@@ -219,6 +228,16 @@ def deleteBlog():
                 return render_template('success.html')
             else:
                 return render_template('failed.html')
+
+@app.route("/readOne",methods=['GET'])
+def readOne():
+    if request.method=='GET':
+        aPost = apic.read_one(request.args.get('blogid'))
+        print("Retrieved a single blog: ",aPost)
+        if aPost:
+            return render_template('aPost.html',post=aPost)
+        else:
+            return render_template('failed.html')
 
 if __name__ == '__main__':
     app.debug = True
