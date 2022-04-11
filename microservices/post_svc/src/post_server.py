@@ -139,7 +139,7 @@ class postServiceServicer(post_grpc.postServiceServicer):
             # print(f'ROW {row}')
             currDate = row['creationDate']
             if currDate > constraint:
-                allPosts.posts.append(post_pb2.postPreview(title=row['title'],author=row['author'],creationDate=str(row['creationDate'])))
+                allPosts.posts.append(post_pb2.postPreview(title=row['title'],author=row['author'],creationDate=str(row['creationDate']),id=str(row['_id'])))
                 
         return allPosts
 

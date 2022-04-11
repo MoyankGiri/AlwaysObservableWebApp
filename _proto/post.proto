@@ -56,4 +56,5 @@ message postPreview{
     string title=1;
     string author=2;
     string creationDate=3;
+    string id=4;
 }

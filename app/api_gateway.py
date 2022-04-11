@@ -112,8 +112,8 @@ class apiClient:
 
         try:
             result = self.post_stub.fetchRecent(post_pb2.when(duration=t*24*60))
-            print("All posts are:",result)
-            return result
+            # print("All posts are:",result)
+            return result.posts
 
         except Exception as e:
             print("[ERROR]",e)
@@ -195,13 +195,13 @@ def readBlogs():
     result = apic.read_all(7)
     if request.method=='GET':
         if result:
-            print("Result",result)
+            # print("Result",list(result))
             #display in the UI
-            return f'<html>{result}</html>'
+            return render_template("display_blog.html",items=list(result))
         else:
             #display empty page
             print("Nothing to fetch :(")
-            return '<html></html>'
+            return render_template("failed.html")
     else:
         return render_template("homepage.html")
 
@@ -216,7 +216,7 @@ def deleteBlog():
             if isSuccess.success:
                 return render_template('delete_success.html')
             else:
-                return render_template('delete_fail.html')
+                return render_template('failed.html')
 
 if __name__ == '__main__':
     app.debug = True

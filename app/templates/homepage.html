@@ -30,7 +30,7 @@
           <div class="ms-editor-squiggler">
             </div>
         </editor> 
-        <button type="button" class="btn btn-success" onclick="load_blog()">
+        <button type="button" class="btn btn-success" onclick="create_ablog()">
             Create Blog
           </button>
         <editor>
@@ -49,7 +49,7 @@
             <div class="ms-editor-squiggler">
               </div>
           </editor> 
-        <button type="button" class="btn btn-success">
+        <button type="button" class="btn btn-success" onclick="read_blogs()">
               ReadBlogs
             </button>
         <editor>
@@ -72,8 +72,12 @@
     </div>
   </div>
   <script>
-    function load_blog(){
+    function create_ablog(){
       window.location="{{url_for('createBlog')}}";
+    }
+
+    function read_blogs(){
+      window.location = "{{url_for('readBlogs')}}";
     }
   </script>
 </html>
