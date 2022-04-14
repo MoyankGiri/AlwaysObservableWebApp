@@ -92,11 +92,11 @@ class apiClient:
 
     def authorize_user(self,token):
         print("Auth Middlewear kickin...")
-        result = {'success':False,'msg':'unsuccessful auth','userID':''}
+        result = None
         try:
             print(f"try with token {token}")
             result = self.user_stub.auth(user_pb2.header(token=str(token)))
-            print(f"Success {result}")
+            print(f"result {result}")
             print(result.success == True)
 
             if not result or not result.success:
@@ -146,6 +146,13 @@ apic = apiClient()
 @app.route("/",methods=['GET'])
 def landing():
     return render_template('login.html')
+
+@app.route("/logout",methods=['GET'])
+
+def logout():
+    resp = make_response(render_template('success.html'))
+    resp.delete_cookie('token')
+    return resp
 
 @app.route("/createAccount",methods=['POST','GET'])
 def createAccount():
@@ -224,12 +231,16 @@ def readBlogs():
 def homepage():
     #find out the logged in user
     authRes = apic.authorize_user(request.cookies.get("token"))
+    print("authRes",authRes)
+
     if authRes.success:
         print("User authorized!")
         if request.method=='GET':
             all_posts = apic.read_home(authRes.userID)
             print("Posts retrieved:",all_posts)
             return render_template("homepage.html",items=list(all_posts)[::-1])
+    else:
+        return render_template("failed.html")
 
 @app.route("/deleteBlog",methods=['GET'])
 def deleteBlog():
@@ -244,6 +255,8 @@ def deleteBlog():
                 return render_template('success.html')
             else:
                 return render_template('failed.html')
+    else:
+        return render_template('failed.html')
 
 @app.route("/readOne",methods=['GET'])
 def readOne():
