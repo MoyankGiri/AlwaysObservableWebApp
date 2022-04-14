@@ -196,7 +196,7 @@ def createBlog():
             print("Redirect to create blog....")
             return render_template('create_blog.html')
         elif request.method == 'POST':
-            aPost = apic.createBlog(request.form.get('title'),request.form.get('body'),request.form.get('body'),authRes.userID)
+            aPost = apic.createBlog(request.form.get('title'),request.form.get('body'),request.form.get('author'),authRes.userID)
             if aPost.id!='':
                 return render_template('success.html')
             else:
@@ -229,10 +229,7 @@ def homepage():
         if request.method=='GET':
             all_posts = apic.read_home(authRes.userID)
             print("Posts retrieved:",all_posts)
-            if all_posts:
-                return render_template("homepage.html",items=list(all_posts))
-            else:
-                return render_template("failed.html")
+            return render_template("homepage.html",items=list(all_posts)[::-1])
 
 @app.route("/deleteBlog",methods=['GET'])
 def deleteBlog():

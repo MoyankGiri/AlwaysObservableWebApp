@@ -20,5 +20,6 @@ change the directory of the auth_svc according to your system
 then run the api gateway
 
 todo:
-display delete,edit button only to posts by the user
+add edit posts,update posts
 logout
+
