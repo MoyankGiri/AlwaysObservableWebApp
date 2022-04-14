@@ -20,6 +20,9 @@ change the directory of the auth_svc according to your system
 then run the api gateway
 
 todo:
-add edit posts,update posts
-logout
+
+add edit posts/update posts button
+add in comments UI in blog posts
+add logout UI in navbar
+add dropdown to allow user to select "fetchRecent" time parameter and send it in the request.
 
