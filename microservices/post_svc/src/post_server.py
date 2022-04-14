@@ -80,6 +80,23 @@ class postServiceServicer(post_grpc.postServiceServicer):
         finally:
             self.conn.close()
             return ret
+
+    #return posts of a specific user
+    def authorPosts(self,req,ctx):
+        self.makeConnection()
+        
+        try:
+            posts = self.collection.find({'userID':req.userID})
+            print("Posts found are: ",posts)
+            all_posts = post_pb2.Posts()
+            for row in posts:
+                all_posts.posts.append(post_pb2.postPreview(title=row['title'],author=row['author'],creationDate=str(row['creationDate']),id=str(row['_id'])))
+            self.conn.close()
+            return all_posts
+        except Exception as e:
+            print("[Error]:",e)
+            self.conn.close()
+            return post_pb2.Posts()
             
     def create(self,req,ctx):
         self.makeConnection()

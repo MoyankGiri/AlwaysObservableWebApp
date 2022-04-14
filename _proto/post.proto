@@ -8,6 +8,11 @@ service postService{
     rpc updatePost (aPost) returns (aPost);
     rpc deletePost (uid) returns (isSuccess);
     rpc fetchRecent (when) returns (Posts);
+    rpc authorPosts (userIdentification) returns (Posts);
+}
+
+message userIdentification{
+    string userID = 1;
 }
 
 message Posts{
@@ -23,7 +28,7 @@ message isSuccess{
 }
 
 message uid{
-    string id=1;
+    string id=1; //post id we want to retrieve
     string userID=2;
 }
 

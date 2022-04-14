@@ -130,17 +130,22 @@ class apiClient:
         except Exception as e:
             print("[ERROR]:",e)
 
+    def read_home(self,userID):
+        all_posts = None
+        try:
+            all_posts = self.post_stub.authorPosts(post_pb2.userIdentification(userID=userID))
+            return all_posts.posts
+        except Exception as e:
+            print("[ERROR]",e)
+        return all_posts
+
 #*********GRPC Client Code ENDS*******************************
 
 apic = apiClient()
 
 @app.route("/",methods=['GET'])
-def homePage():
+def landing():
     return render_template('login.html')
-
-@app.route("/home",methods=['GET'])
-def userHome():
-    return render_template('homepage.html')
 
 @app.route("/createAccount",methods=['POST','GET'])
 def createAccount():
@@ -214,6 +219,20 @@ def readBlogs():
             return render_template("failed.html")
     else:
         return render_template("homepage.html")
+
+@app.route("/home",methods=['GET'])
+def homepage():
+    #find out the logged in user
+    authRes = apic.authorize_user(request.cookies.get("token"))
+    if authRes.success:
+        print("User authorized!")
+        if request.method=='GET':
+            all_posts = apic.read_home(authRes.userID)
+            print("Posts retrieved:",all_posts)
+            if all_posts:
+                return render_template("homepage.html",items=list(all_posts))
+            else:
+                return render_template("failed.html")
 
 @app.route("/deleteBlog",methods=['GET'])
 def deleteBlog():

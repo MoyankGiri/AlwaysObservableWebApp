@@ -18,10 +18,42 @@
   </nav>
 
   <div class="jumbotron">
-    <blockquote class="blockquote text-center">
-        <h1 class="display-3">Welcome</h1>
-        <p class="mb-0">What's on your mind today?</p>
-    </blockquote>
-</div>
-  </body>
+    <h1 class="display-4">Hello!</h1>
+    <p class="lead">This is a simple blogging application</p>
+    <hr class="my-4">
+    <p>You can create or edit a blog and publish it!</p>
+  </div>
+
+  {%for item in items%}
+      <div class="card text-center">
+        <div class="card-header">
+          {{item.author}}
+        </div>
+        <div class="card-body">
+          <h5 class="card-title">{{item.title}}</h5>
+          <a href="#" id="del" class="btn btn-primary">Delete</a>
+          <a href="#" id="edit" class="btn btn-primary">Edit</a>
+        </div>
+        <div class="card-footer text-muted">
+          {{item.creationDate}}
+        </div>
+      </div>
+      {%endfor%}
+
+</body>
+<script>
+  $("#del").click(function(event){
+        alert(event.target.parentElement.id);
+        //bid->blog id
+        var bid = event.target.parentElement.id;
+        window.location = "{{url_for('deleteBlog')}}"+`?blogid=${bid}`;
+    })
+
+  $("#edit").click(function(event){
+      var blogid = event.target.parentElement.id;
+      alert(blogid)
+      window.location = "{{url_for('readOne')}}"+`?blogid=${blogid}`;
+  })
+</script>
+
 </html>

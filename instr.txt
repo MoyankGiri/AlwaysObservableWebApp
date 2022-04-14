@@ -21,3 +21,4 @@ then run the api gateway
 
 todo:
 display delete,edit button only to posts by the user
+logout
