@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+    <body>
+        <h2>Sample Blog</h2>
+        <p>
+        Non irure occaecat adipisicing enim incididunt aliquip exercitation sit ut non dolor. Ea ex cillum officia anim proident enim ex minim et elit consectetur do. Velit occaecat esse laboris consequat. Laboris labore labore id ad sunt fugiat magna.
+        </p>
+
+        <form method="post">
+            <label for="title">Title</label>
+            <br>
+            <input type="text" name="title"
+                   placeholder="Message title"
+                   value="{{ request.form['title'] }}"></input>
+            <br>
+            <label for="author">Author</label>
+            <br>
+            <input type="text" name="author"
+                   placeholder="Comment author"
+                   value="{{ request.form['author'] }}"></input>
+            <br>
+            <label for="body">Comment Body</label>
+            <br>
+            <textarea name="body"
+                      placeholder="Add comment"
+                      rows="15"
+                      cols="60"
+                      >{{ request.form['body'] }}</textarea>
+            <br>
+            <button type="submit">Submit</button>
+        </form>
+    </body>
+</html>
