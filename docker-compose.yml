@@ -1,0 +1,50 @@
+# can now use docker compose in root folder
+
+version: '3'
+services:
+  app:
+    build:
+      context: .
+      dockerfile: app/Dockerfile
+    image: inital-build
+    networks:
+      - AlwaysObservableApplication
+    command: python3 -u app.py
+    ports:
+      - "5000:5000"
+    volumes:
+      - .:/app
+    environment:
+      - DB=mongodb://mongodb:27017
+      - CommentMicroService=commentMicroservice
+  mongodb:
+    image: mongo:latest
+    container_name: mongoContainer
+    hostname: MongoDataBase
+    networks:
+      - AlwaysObservableApplication
+    environment:
+      - MONGO_DATA_DIR=/usr/data/db
+      - MONGO_LOG_DIR=/dev/null
+    volumes:
+      - ./data/db:/usr/data/db
+    ports:
+      - 27017:27017
+    command: mongod --logpath=/dev/null
+  
+  commentMicroservice:
+    build:
+      context: .
+      dockerfile: microservices/comments_svc/src/Dockerfile
+    image: commentmicroservice
+    networks:
+      - AlwaysObservableApplication
+    command: python3 -u comment_server.py
+    ports:
+      - "5051:5051"
+    volumes:
+      - .:/commentMicroservice
+    environment:
+      - DB=mongodb://mongodb:27017
+networks:
+      AlwaysObservableApplication:
