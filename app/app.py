@@ -1,14 +1,23 @@
-from crypt import methods
-from turtle import pos
-from flask import flash, make_response, request
+import os
+from flask import flash, jsonify, make_response, render_template_string, request
 import grpc
 
 import sys
-sys.path.insert(0,'/home/chandradhar/Projects/CTY/AlwaysObservableWebApp/microservices/auth_svc/src')
-sys.path.insert(0,'/home/chandradhar/Projects/CTY/AlwaysObservableWebApp/microservices/post_svc/src')
+sys.path.insert(0,'C:/Users/moyan/Downloads/AlwaysObservableWebApp/AlwaysObservableWebApp/microservices/post_svc/src')
+sys.path.insert(0,'C:/Users/moyan/Downloads/AlwaysObservableWebApp/AlwaysObservableWebApp/microservices/auth_svc/src')
+sys.path.insert(1,'microservices/comments_svc/src')
 import user_pb2_grpc,user_pb2
 import post_pb2_grpc,post_pb2
+import comments_pb2
+import comments_pb2_grpc
 
+#---------docker related stuff--------
+
+#(will need to change mongoDB connection to DB as shown below for posts and auth)
+# client = pymongo.MongoClient(os.environ.get('DB'))
+commentMicroServiceOSENV = os.environ.get('CommentMicroService')
+
+#---------docker related stuff end--------
 from flask import Flask,render_template,request
 app = Flask(__name__)
 app.secret_key = 'abc'
@@ -139,9 +148,39 @@ class apiClient:
             print("[ERROR]",e)
         return all_posts
 
+
+class appClient:
+
+    def __init__(self) -> None:
+        print(commentMicroServiceOSENV,file=sys.stderr)
+        commentChannel = grpc.insecure_channel(f"{commentMicroServiceOSENV}:5051")
+        print(f"Comment Channel {commentChannel}",file=sys.stderr)
+        self.comment_stub = comments_pb2_grpc.commentServiceStub(commentChannel)
+        print(self.comment_stub,file=sys.stderr)
+    
+    def create_comment(self,title,body,author):
+        newComment = None
+        try:
+
+            newComment = self.comment_stub.createComment(comments_pb2.aComment(title = title,body = body,author = author,parentPost = "root",parentComment = "root",userID = "1"))
+        except Exception as e:
+            print(f"[ERROR]: {e}")
+        finally:
+            if not (newComment.title and newComment.body and newComment.author):
+                print("ERROR")
+                return 
+            try:
+                commentResponseReceived = self.comment_stub.GetCreatedComment(comments_pb2.CreatedCommentResponse(commentID = str(newComment.id)))
+                return commentResponseReceived
+            except Exception as e:
+                print(f"[ERROR]: {e}")
+
+
+
 #*********GRPC Client Code ENDS*******************************
 
 apic = apiClient()
+appclient = appClient()
 
 @app.route("/",methods=['GET'])
 def landing():
@@ -267,6 +306,32 @@ def readOne():
             return render_template('aPost.html',post=aPost)
         else:
             return render_template('failed.html')
+
+@app.route("/createComment",methods = ['GET','POST'])
+def commentCreate():
+    if request.method == 'POST':
+        title = request.form['title']
+        author = request.form['author']
+        body = request.form['body']
+        try:
+            print("Calling here server",file=sys.stderr)
+            commentResponseReceived = appclient.create_comment(title,body,author)
+            print(commentResponseReceived,file=sys.stderr)
+        except Exception as e:
+            print(f"[ERROR]: {e}")
+        finally:
+            if not commentResponseReceived.id:
+                print("ERROR")
+                return 
+            st = "<h2>" + str(commentResponseReceived.title) + "</h2> <h3>" + str(commentResponseReceived.author) +  "</h3> <p>" + str(commentResponseReceived.id) + "<br>" + str(commentResponseReceived.userID) + "<br>" + str(commentResponseReceived.body) + "<br>"
+            try:
+                return render_template_string('<!DOCTYPE html> <html lang="en"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head><body>' + st + '</body></html>')
+            except Exception as e:
+                print(f"[ERROR]: {e}")
+                return jsonify(success = False)
+    else:
+        return render_template('commentInput.html')
+        
 
 if __name__ == '__main__':
     app.debug = True

@@ -6,21 +6,34 @@ import "shared.proto";
 
 service commentService{
     rpc createComment (aComment) returns (commentItem);
-    rpc readComments (shared.uid) returns (stream commentItem);
+    rpc readComments (shared.uid) returns (CommentItemsList);
     rpc updateComment (shared.uid) returns (commentItem);
+    rpc GetCreatedComment (CreatedCommentResponse) returns (commentItem);
 }
 
 message commentItem{
     string id = 1;
+    string title = 2;
+    string body = 3;
+    string author = 4;
+    string parentPost = 5;
+    string parentComment = 6;
+    string userID = 7;
+}
+
+message aComment{
+    string title = 1;
     string body = 2;
     string author = 3;
     string parentPost = 4;
     string parentComment = 5;
+    string userID = 6;
 }
 
-message aComment{
-    string body = 1;
-    string author = 2;
-    string parentPost = 3;
-    string parentComment = 4;
+message CommentItemsList{
+    repeated aComment comments = 1;
+}
+
+message CreatedCommentResponse{
+    string commentID = 1;
 }
