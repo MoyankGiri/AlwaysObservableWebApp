@@ -1,0 +1,199 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: commentmicroservice
+    labels:
+        app: commentmicroservice
+spec:
+    replicas: 3
+    selector:
+        matchLabels:
+            app: commentmicroservice
+    template:
+        metadata:
+            labels:
+                app: commentmicroservice
+        spec:
+            containers:
+                - name: commentmicroservice
+                  image: pes1ug19cs280/hpcty:commentmicroservice
+                  env:
+                    - name: DB
+                      value: mongodb://mongodb:27017
+                  ports:
+                    - containerPort: 5051
+                  imagePullPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+    name: commentmicroservice
+spec:
+    selector:
+        app: commentmicroservice
+    ports:
+        - protocol: TCP
+          port: 5051
+          targetPort: 5051
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: postmicroservice
+    labels:
+        app: postmicroservice
+spec:
+    replicas: 3
+    selector:
+        matchLabels:
+            app: postmicroservice
+    template:
+        metadata:
+            labels:
+                app: postmicroservice
+        spec:
+            containers:
+                - name: postmicroservice
+                  image: pes1ug19cs280/hpcty:postmicroservice
+                  env:
+                    - name: DB
+                      value: mongodb://mongodb:27017
+                  ports:
+                    - containerPort: 50051
+                  imagePullPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+    name: postmicroservice
+spec:
+    selector:
+        app: postmicroservice
+    ports:
+        - protocol: TCP
+          port: 50051
+          targetPort: 50051
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: authmicroservice
+    labels:
+        app: authmicroservice
+spec:
+    replicas: 3
+    selector:
+        matchLabels:
+            app: authmicroservice
+    template:
+        metadata:
+            labels:
+                app: authmicroservice
+        spec:
+            containers:
+                - name: authmicroservice
+                  image: pes1ug19cs280/hpcty:authmicroservice
+                  env:
+                    - name: DB
+                      value: mongodb://mongodb:27017
+                  ports:
+                    - containerPort: 50056
+                  imagePullPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+    name: authmicroservice
+spec:
+    selector:
+        app: authmicroservice
+    ports:
+        - protocol: TCP
+          port: 50056
+          targetPort: 50056
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: mongodb
+    labels:
+        app: mongodb
+spec:
+    replicas: 3
+    selector:
+        matchLabels:
+            app: mongodb
+    template:
+        metadata:
+            labels:
+                app: mongodb
+        spec:
+            containers:
+                - name: mongocontainer
+                  image: mongo:latest
+                  env:
+                    - name: MONGO_DATA_DIR
+                      value: /usr/data/db
+                    - name: MONGO_LOG_DIR
+                      value: /dev/null
+                  ports:
+                    - containerPort: 27017
+                  imagePullPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+    name: mongodb
+spec:
+    selector:
+        app: mongodb
+    ports:
+        - protocol: TCP
+          port: 27017
+          targetPort: 27017
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: apigateway
+  labels:
+    app: apigateway
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: apigateway
+  template:
+    metadata:
+      labels:
+        app: apigateway
+    spec:
+      containers:
+        - name: apigateway
+          image: pes1ug19cs280/hpcty:apigateway
+          env:
+            - name: DB
+              value: mongodb://mongodb:27017
+            #- name: CommentMicroService
+            #  value: commentMicroservice
+            - name: PostMicroService
+              value: postmicroserivice
+            - name: AuthMicroService
+              value: authmicroserivice
+          ports:
+            - containerPort: 5000
+          imagePullPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+    name: apigateway
+spec:
+    selector:
+        app: apigateway
+    ports:
+        - protocol: TCP
+          port: 5000
+          targetPort: 5000
+---
