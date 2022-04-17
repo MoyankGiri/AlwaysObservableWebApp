@@ -3,8 +3,8 @@ from flask import flash, jsonify, make_response, render_template_string, request
 import grpc
 
 import sys
-sys.path.insert(0,'C:/Users/moyan/Downloads/AlwaysObservableWebApp/AlwaysObservableWebApp/microservices/post_svc/src')
-sys.path.insert(0,'C:/Users/moyan/Downloads/AlwaysObservableWebApp/AlwaysObservableWebApp/microservices/auth_svc/src')
+sys.path.insert(1,'microservices/post_svc/src')
+sys.path.insert(1,'microservices/auth_svc/src')
 sys.path.insert(1,'microservices/comments_svc/src')
 import user_pb2_grpc,user_pb2
 import post_pb2_grpc,post_pb2
@@ -16,6 +16,8 @@ import comments_pb2_grpc
 #(will need to change mongoDB connection to DB as shown below for posts and auth)
 # client = pymongo.MongoClient(os.environ.get('DB'))
 commentMicroServiceOSENV = os.environ.get('CommentMicroService')
+postMicroServiceOSENV = os.environ.get('PostMicroService')
+authMicroServiceOSENV = os.environ.get('AuthMicroService')
 
 #---------docker related stuff end--------
 from flask import Flask,render_template,request
@@ -26,8 +28,8 @@ app.secret_key = 'abc'
 class apiClient:
     def __init__(self) -> None:
         #good practice to reuse channels and stubs across multiple connections
-        post_channel = grpc.insecure_channel('localhost:50051')
-        user_channel = grpc.insecure_channel('localhost:50056')
+        post_channel = grpc.insecure_channel(f"{postMicroServiceOSENV}:50051")
+        user_channel = grpc.insecure_channel(f"{authMicroServiceOSENV}:50056")
         print(f"Post Channel {post_channel}")
         print(f"User Channel {user_channel}")
         self.user_stub = user_pb2_grpc.userServiceStub(user_channel)

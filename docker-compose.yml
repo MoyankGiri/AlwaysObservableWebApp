@@ -1,12 +1,11 @@
 # can now use docker compose in root folder
-
 version: '3'
 services:
   app:
     build:
       context: .
       dockerfile: app/Dockerfile
-    image: inital-build
+    image: apigateway
     networks:
       - AlwaysObservableApplication
     command: python3 -u app.py
@@ -17,6 +16,8 @@ services:
     environment:
       - DB=mongodb://mongodb:27017
       - CommentMicroService=commentMicroservice
+      - PostMicroService=postMicroservice
+      - AuthMicroService=authMicroservice
   mongodb:
     image: mongo:latest
     container_name: mongoContainer
@@ -44,6 +45,35 @@ services:
       - "5051:5051"
     volumes:
       - .:/commentMicroservice
+    environment:
+      - DB=mongodb://mongodb:27017
+      
+  postMicroservice:
+    build:
+      context: .
+      dockerfile: microservices/post_svc/src/Dockerfile
+    image: postmicroservice
+    networks:
+      - AlwaysObservableApplication
+    command: python3 -u post_server.py
+    ports:
+      - "50051:50051"
+    volumes:
+      - .:/postMicroservice
+    environment:
+      - DB=mongodb://mongodb:27017
+  authMicroservice:
+    build:
+      context: .
+      dockerfile: microservices/auth_svc/src/Dockerfile
+    image: authmicroservice
+    networks:
+      - AlwaysObservableApplication
+    command: python3 -u auth_server.py
+    ports:
+      - "50056:50056"
+    volumes:
+      - .:/authenticationMicroservice
     environment:
       - DB=mongodb://mongodb:27017
 networks:
