@@ -1,0 +1,14 @@
+click
+colorama
+Flask
+grpcio
+grpcio-tools
+importlib-metadata
+itsdangerous
+Jinja2
+MarkupSafe
+protobuf
+pymongo
+six
+Werkzeug
+zipp

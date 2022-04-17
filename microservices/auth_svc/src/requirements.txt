@@ -1,0 +1,17 @@
+bcrypt
+click
+colorama
+cryptography
+Flask
+grpcio
+grpcio-tools
+importlib-metadata
+itsdangerous
+Jinja2
+MarkupSafe
+protobuf
+pymongo
+six
+PyJWT
+Werkzeug
+zipp

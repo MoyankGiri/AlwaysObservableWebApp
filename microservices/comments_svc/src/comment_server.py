@@ -1,5 +1,6 @@
 import logging
 from datetime import date, datetime, timedelta
+import os
 
 from concurrent import futures
 from time import strptime
@@ -15,7 +16,7 @@ from bson.objectid import ObjectId
 class commentServiceServicer(comments_pb2_grpc.commentServiceServicer):
 
     def makeConnection(self):
-        self.conn = pymongo.MongoClient("mongodb://localhost:27017/")
+        self.conn = pymongo.MongoClient(os.environ.get('DB'))
         self.db = self.conn["blog"]
         self.collection = self.db["comments"]
     

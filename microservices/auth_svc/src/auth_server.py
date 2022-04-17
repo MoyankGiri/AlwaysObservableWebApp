@@ -18,11 +18,12 @@ from bson.objectid import ObjectId
 
 import jwt
 from cryptography.hazmat.primitives import serialization
+import os
 key = "secret"
 class userServiceServicer(user_grpc.userServiceServicer):
     def makeConnection(self):
         print("Creating connection to mongodb....")
-        self.conn = pymongo.MongoClient("mongodb://localhost:27017/")
+        self.conn = pymongo.MongoClient(os.environ.get('DB'))
         self.db = self.conn["users"]
         self.collection = self.db["posts"]
 

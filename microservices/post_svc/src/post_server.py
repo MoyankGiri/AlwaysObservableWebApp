@@ -1,6 +1,6 @@
 import logging
 from datetime import date, datetime, timedelta
-
+import os
 from concurrent import futures
 from multiprocessing.sharedctypes import Value
 from time import strftime, strptime
@@ -16,7 +16,7 @@ from bson.objectid import ObjectId
 class postServiceServicer(post_grpc.postServiceServicer):
     def makeConnection(self):
         # print("Creating connection to mongodb....")
-        self.conn = pymongo.MongoClient("mongodb://localhost:27017/")
+        self.conn = pymongo.MongoClient(os.environ.get('DB'))
         self.db = self.conn["blog"]
         self.collection = self.db["posts"]
 
