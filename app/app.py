@@ -3,9 +3,9 @@ from flask import flash, jsonify, make_response, render_template_string, request
 import grpc
 
 import sys
-sys.path.insert(1,'microservices/post_svc/src')
-sys.path.insert(1,'microservices/auth_svc/src')
-sys.path.insert(1,'microservices/comments_svc/src')
+sys.path.insert(1,'/webapp/microservices/post_svc/src')
+sys.path.insert(1,'/webapp/microservices/auth_svc/src')
+sys.path.insert(1,'/webapp/microservices/comments_svc/src')
 import user_pb2_grpc,user_pb2
 import post_pb2_grpc,post_pb2
 import comments_pb2
