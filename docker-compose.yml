@@ -26,10 +26,10 @@ services:
     networks:
       - AlwaysObservableApplication
     environment:
-      - MONGO_DATA_DIR=/usr/data/db
+      - MONGO_DATA_DIR=/usr/data/commdb
       - MONGO_LOG_DIR=/dev/null
     volumes:
-      - ./data/db:/usr/data/db
+      - ./data/db:/usr/data/commdb
     ports:
       - 27018:27018
     command: mongod --logpath=/dev/null
@@ -71,10 +71,10 @@ services:
     networks:
       - AlwaysObservableApplication
     environment:
-      - MONGO_DATA_DIR=/usr/data/db
+      - MONGO_DATA_DIR=/usr/data/postdb
       - MONGO_LOG_DIR=/dev/null
     volumes:
-      - ./data/db:/usr/data/db
+      - ./data/db:/usr/data/postdb
     ports:
       - 27019:27019
     command: mongod --logpath=/dev/null
@@ -102,10 +102,10 @@ services:
     networks:
       - AlwaysObservableApplication
     environment:
-      - MONGO_DATA_DIR=/usr/data/db
+      - MONGO_DATA_DIR=/usr/data/authdb
       - MONGO_LOG_DIR=/dev/null
     volumes:
-      - ./data/db:/usr/data/db
+      - ./data/db:/usr/data/authdb
     ports:
       - 27017:27017
     command: mongod --logpath=/dev/null

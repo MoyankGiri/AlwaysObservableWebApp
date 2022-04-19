@@ -20,7 +20,7 @@ spec:
                   image: pes1ug19cs280/hpcty:commentmicroservice
                   env:
                     - name: DB
-                      value: mongodb://mongodb:27017
+                      value: commentmongodb
                   ports:
                     - containerPort: 5051
                   imagePullPolicy: Always
@@ -58,7 +58,7 @@ spec:
                   image: pes1ug19cs280/hpcty:postmicroservice
                   env:
                     - name: DB
-                      value: mongodb://mongodb:27017
+                      value: postmongodb
                   ports:
                     - containerPort: 50051
                   imagePullPolicy: Always
@@ -96,7 +96,7 @@ spec:
                   image: pes1ug19cs280/hpcty:authmicroservice
                   env:
                     - name: DB
-                      value: mongodb://mongodb:27017
+                      value: authmongodb
                   ports:
                     - containerPort: 50056
                   imagePullPolicy: Always
@@ -116,25 +116,105 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-    name: mongodb
+    name: commentmongodb
     labels:
-        app: mongodb
+        app: commentmongodb
 spec:
     replicas: 3
     selector:
         matchLabels:
-            app: mongodb
+            app: commentmongodb
     template:
         metadata:
             labels:
-                app: mongodb
+                app: commentmongodb
         spec:
             containers:
-                - name: mongocontainer
+                - name: commentmongocontainer
                   image: mongo:latest
                   env:
                     - name: MONGO_DATA_DIR
-                      value: /usr/data/db
+                      value: /usr/data/commdb
+                    - name: MONGO_LOG_DIR
+                      value: /dev/null
+                  ports:
+                    - containerPort: 27018
+                  imagePullPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+    name: commentmongodb
+spec:
+    selector:
+        app: commentmongodb
+    ports:
+        - protocol: TCP
+          port: 27018
+          targetPort: 27018
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: postmongodb
+    labels:
+        app: postmongodb
+spec:
+    replicas: 3
+    selector:
+        matchLabels:
+            app: postmongodb
+    template:
+        metadata:
+            labels:
+                app: postmongodb
+        spec:
+            containers:
+                - name: postmongocontainer
+                  image: mongo:latest
+                  env:
+                    - name: MONGO_DATA_DIR
+                      value: /usr/data/postdb
+                    - name: MONGO_LOG_DIR
+                      value: /dev/null
+                  ports:
+                    - containerPort: 27019
+                  imagePullPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+    name: postmongodb
+spec:
+    selector:
+        app: postmongodb
+    ports:
+        - protocol: TCP
+          port: 27019
+          targetPort: 27019
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: authmongodb
+    labels:
+        app: authmongodb
+spec:
+    replicas: 3
+    selector:
+        matchLabels:
+            app: authmongodb
+    template:
+        metadata:
+            labels:
+                app: authmongodb
+        spec:
+            containers:
+                - name: authmongocontainer
+                  image: mongo:latest
+                  env:
+                    - name: MONGO_DATA_DIR
+                      value: /usr/data/authdb
                     - name: MONGO_LOG_DIR
                       value: /dev/null
                   ports:
@@ -144,10 +224,10 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-    name: mongodb
+    name: authmongodb
 spec:
     selector:
-        app: mongodb
+        app: authmongodb
     ports:
         - protocol: TCP
           port: 27017
@@ -175,8 +255,8 @@ spec:
           env:
             - name: DB
               value: mongodb://mongodb:27017
-            #- name: CommentMicroService
-            #  value: commentMicroservice
+            - name: CommentMicroService
+              value: commentMicroservice
             - name: PostMicroService
               value: postmicroserivice
             - name: AuthMicroService
