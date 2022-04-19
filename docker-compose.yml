@@ -18,9 +18,10 @@ services:
       - CommentMicroService=commentMicroservice
       - PostMicroService=postMicroservice
       - AuthMicroService=authMicroservice
-  mongodb:
+      
+  Commentmongodb:
     image: mongo:latest
-    container_name: mongoContainer
+    container_name: CommentMongoContainer
     hostname: MongoDataBase
     networks:
       - AlwaysObservableApplication
@@ -30,7 +31,7 @@ services:
     volumes:
       - ./data/db:/usr/data/db
     ports:
-      - 27017:27017
+      - 27018:27018
     command: mongod --logpath=/dev/null
   
   commentMicroservice:
@@ -46,7 +47,7 @@ services:
     volumes:
       - .:/commentMicroservice
     environment:
-      - DB=mongodb://mongodb:27017
+      - DB=Commentmongodb
       
   postMicroservice:
     build:
@@ -61,7 +62,24 @@ services:
     volumes:
       - .:/postMicroservice
     environment:
-      - DB=mongodb://mongodb:27017
+      - DB=Postmongodb
+
+  Postmongodb:
+    image: mongo:latest
+    container_name: PostMongoContainer
+    hostname: MongoDataBase
+    networks:
+      - AlwaysObservableApplication
+    environment:
+      - MONGO_DATA_DIR=/usr/data/db
+      - MONGO_LOG_DIR=/dev/null
+    volumes:
+      - ./data/db:/usr/data/db
+    ports:
+      - 27019:27019
+    command: mongod --logpath=/dev/null
+
+
   authMicroservice:
     build:
       context: .
@@ -75,6 +93,21 @@ services:
     volumes:
       - .:/authenticationMicroservice
     environment:
-      - DB=mongodb://mongodb:27017
+      - DB=Authmongodb
+
+  Authmongodb:
+    image: mongo:latest
+    container_name: AuthMongoContainer
+    hostname: MongoDataBase
+    networks:
+      - AlwaysObservableApplication
+    environment:
+      - MONGO_DATA_DIR=/usr/data/db
+      - MONGO_LOG_DIR=/dev/null
+    volumes:
+      - ./data/db:/usr/data/db
+    ports:
+      - 27017:27017
+    command: mongod --logpath=/dev/null
 networks:
       AlwaysObservableApplication:
