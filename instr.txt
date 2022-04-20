@@ -21,7 +21,7 @@ then run the api gateway
 
 todo:
 
-add edit posts/update posts button
+add edit posts/update posts button [done]
 add in comments UI in blog posts
 add logout UI in navbar
 add dropdown to allow user to select "fetchRecent" time parameter and send it in the request.

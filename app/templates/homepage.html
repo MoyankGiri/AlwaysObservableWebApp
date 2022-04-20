@@ -17,6 +17,7 @@
           <a class="navbar-brand" href="/home">Home</a>
         <a class="navbar-brand" href="/readBlogs">Read More</a>
         <a class="navbar-brand" href="/createBlog">Create Blog</a>
+        <a class="navbar-brand" href="/logout">Logout</a>
       </div>
   </nav>
 
@@ -57,7 +58,7 @@
   $("#edit").click(function(event){
       var blogid = event.target.parentElement.id;
       alert(blogid)
-      window.location = "{{url_for('readOne')}}"+`?blogid=${blogid}`;
+      window.location = "{{url_for('editBlog')}}"+`?blogid=${blogid}`;
   })
 </script>
 

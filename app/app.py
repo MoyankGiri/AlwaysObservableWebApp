@@ -1,11 +1,19 @@
 import os
-from flask import flash, jsonify, make_response, render_template_string, request
+from flask import Response, flash, jsonify, make_response, render_template_string, request
 import grpc
 
+DOCKER = False
+
 import sys
-sys.path.insert(1,'/webapp/microservices/post_svc/src')
-sys.path.insert(1,'/webapp/microservices/auth_svc/src')
-sys.path.insert(1,'/webapp/microservices/comments_svc/src')
+if DOCKER:
+    sys.path.insert(1,'/webapp/microservices/post_svc/src')
+    sys.path.insert(1,'/webapp/microservices/auth_svc/src')
+    sys.path.insert(1,'/webapp/microservices/comments_svc/src')
+else:
+    sys.path.insert(0,'/home/chandradhar/Projects/CTY/AlwaysObservableWebApp/microservices/auth_svc/src')
+    sys.path.insert(0,'/home/chandradhar/Projects/CTY/AlwaysObservableWebApp/microservices/post_svc/src')
+    sys.path.insert(0,'/home/chandradhar/Projects/CTY/AlwaysObservableWebApp/microservices/comments_svc/src')
+
 import user_pb2_grpc,user_pb2
 import post_pb2_grpc,post_pb2
 import comments_pb2
@@ -150,6 +158,23 @@ class apiClient:
             print("[ERROR]",e)
         return all_posts
 
+    def edit_blog(self,blogid,userid,postDict):
+        print(f"Editing blog:{blogid}\nCreated by:{userid}")
+        updatedPost = {}
+        try:
+            updatedPost = self.post_stub.updatePost((post_pb2.aPost(
+                id=postDict['id'],
+                title=postDict['title'],
+                body=postDict['body'],
+                author=postDict['author'],
+                creationDate=postDict['creationDate'],
+                lastUpdatedDate=postDict['lastUpdatedDate'],
+                userID=userid
+            )))
+            return updatedPost
+        except Exception as e:
+            print(f"[Error]",e)
+            return updatedPost
 
 class appClient:
 
@@ -182,6 +207,8 @@ class appClient:
 #*********GRPC Client Code ENDS*******************************
 
 apic = apiClient()
+
+#**put this to the apiClient class itself please**
 appclient = appClient()
 
 @app.route("/",methods=['GET'])
@@ -189,7 +216,6 @@ def landing():
     return render_template('login.html')
 
 @app.route("/logout",methods=['GET'])
-
 def logout():
     resp = make_response(render_template('success.html'))
     resp.delete_cookie('token')
@@ -282,6 +308,21 @@ def homepage():
             return render_template("homepage.html",items=list(all_posts)[::-1])
     else:
         return render_template("failed.html")
+
+@app.route("/editBlog",methods=['GET','POST'])
+def updateBlog():
+    authRes = apic.authorize_user(request.cookies.get("token"))
+    if authRes.success:
+        if request.method=='POST':
+            print("User Authorized,Updating the blog content....")
+            updatedBlog = apic.edit_blog(request.args.get("blogid"),authRes.userID,request.form.to_dict())
+            print("Blog article updated!",updatedBlog)
+            return render_template("success.html")
+        else:
+            if request.method=='GET':
+                #return the blog with the earlier data
+                aBlog = apic.read_one(request.args.get("blogid"))
+                return render_template('edit_blog.html',article=aBlog)
 
 @app.route("/deleteBlog",methods=['GET'])
 def deleteBlog():
