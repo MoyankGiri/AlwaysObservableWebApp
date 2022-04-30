@@ -2,7 +2,7 @@ import os
 from flask import Response, flash, jsonify, make_response, render_template_string, request
 import grpc
 
-DOCKER = False
+DOCKER = True
 
 import sys
 if DOCKER:
@@ -36,8 +36,8 @@ app.secret_key = 'abc'
 class apiClient:
     def __init__(self) -> None:
         #good practice to reuse channels and stubs across multiple connections
-        post_channel = grpc.insecure_channel(f"{postMicroServiceOSENV}:50051")
-        user_channel = grpc.insecure_channel(f"{authMicroServiceOSENV}:50056")
+        post_channel = grpc.insecure_channel("postmicroservice:50051")
+        user_channel = grpc.insecure_channel("authmicroservice:50056")
         print(f"Post Channel {post_channel}")
         print(f"User Channel {user_channel}")
         self.user_stub = user_pb2_grpc.userServiceStub(user_channel)

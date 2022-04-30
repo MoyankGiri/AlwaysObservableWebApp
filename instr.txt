@@ -34,9 +34,19 @@ minicube start
 kubectl get nodes -o wide
 
 //to access the apigateway service
-<node-ip>:32000
 
 we get the node-ip from the internal-ip column of the get nodes command
 
 NAME       STATUS   ROLES                  AGE   VERSION   INTERNAL-IP    EXTERNAL-IP   OS-IMAGE             
 minikube   Ready    control-plane,master   36m   v1.23.1   192.168.49.2   <none>        Ubuntu 20.04.2 LTS   5.13.
+
+
+create docker containers
+push them to docker registry
+ask kubernetes to pull from the docker registry
+
+if any port is already occupied, grep it
+sudo lsof -i -P -n | grep <port_num>
+
+kill it
+sudo kill <process_id>
