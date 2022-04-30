@@ -26,3 +26,6 @@ add in comments UI in blog posts
 add logout UI in navbar
 add dropdown to allow user to select "fetchRecent" time parameter and send it in the request.
 
+
+minicube start
+kubectl get pods -o wide
