@@ -25,7 +25,18 @@ add edit posts/update posts button [done]
 add in comments UI in blog posts
 add logout UI in navbar
 add dropdown to allow user to select "fetchRecent" time parameter and send it in the request.
+small ui changes when i find free time
 
-
+//starts minicube
 minicube start
-kubectl get pods -o wide
+
+//to get the nodes
+kubectl get nodes -o wide
+
+//to access the apigateway service
+<node-ip>:32000
+
+we get the node-ip from the internal-ip column of the get nodes command
+
+NAME       STATUS   ROLES                  AGE   VERSION   INTERNAL-IP    EXTERNAL-IP   OS-IMAGE             
+minikube   Ready    control-plane,master   36m   v1.23.1   192.168.49.2   <none>        Ubuntu 20.04.2 LTS   5.13.

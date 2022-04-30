@@ -319,12 +319,12 @@ kind: Service
 metadata:
     name: apigateway
 spec:
+    type: NodePort
     selector:
-        type: NodePort
         app: apigateway
     ports:
         - protocol: TCP
           port: 5000
-          nodePort: 32000
           targetPort: 5000
+          nodePort: 32000
 ---
