@@ -1,6 +1,7 @@
 from crypt import methods
+from itertools import groupby
 from turtle import pos
-from flask import flash, make_response, request
+from flask import Response, flash, make_response, request
 import grpc
 
 import sys
@@ -12,6 +13,12 @@ import post_pb2_grpc,post_pb2
 from flask import Flask,render_template,request
 app = Flask(__name__)
 app.secret_key = 'abc'
+
+
+#Prometheus client will send the metrics to the server
+import prometheus_client
+from helpers.middlewear import setup_metrics
+setup_metrics(app)
 
 #*********GRPC Client Code*******************************
 class apiClient:
@@ -142,6 +149,11 @@ class apiClient:
 #*********GRPC Client Code ENDS*******************************
 
 apic = apiClient()
+
+@app.route("/metrics")
+def metrics():
+    #create and send response to the prometheus querying server
+    return Response(prometheus_client.generate_latest(),mimetype=str('text/plain; version=0.0.4; charset=utf-8'))
 
 @app.route("/",methods=['GET'])
 def landing():
