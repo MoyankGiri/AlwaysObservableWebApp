@@ -50,3 +50,6 @@ sudo lsof -i -P -n | grep <port_num>
 
 kill it
 sudo kill <process_id>
+
+seperate out the serves and deployments into individual files
+for now set the replication factor to 1

@@ -6,7 +6,7 @@ metadata:
     labels:
         app: commentmicroservice
 spec:
-    replicas: 3
+    replicas: 0
     selector:
         matchLabels:
             app: commentmicroservice
@@ -51,7 +51,7 @@ metadata:
     labels:
         app: postmicroservice
 spec:
-    replicas: 3
+    replicas: 0
     selector:
         matchLabels:
             app: postmicroservice
@@ -96,7 +96,7 @@ metadata:
     labels:
         app: authmicroservice
 spec:
-    replicas: 3
+    replicas: 0
     selector:
         matchLabels:
             app: authmicroservice
@@ -141,7 +141,7 @@ metadata:
     labels:
         app: commentmongodb
 spec:
-    replicas: 3
+    replicas: 0
     selector:
         matchLabels:
             app: commentmongodb
@@ -188,7 +188,7 @@ metadata:
     labels:
         app: postmongodb
 spec:
-    replicas: 3
+    replicas: 0
     selector:
         matchLabels:
             app: postmongodb
@@ -235,7 +235,7 @@ metadata:
     labels:
         app: authmongodb
 spec:
-    replicas: 3
+    replicas: 0
     selector:
         matchLabels:
             app: authmongodb
@@ -282,7 +282,7 @@ metadata:
   labels:
     app: apigateway
 spec:
-  replicas: 3
+  replicas: 0
   selector:
     matchLabels:
       app: apigateway
