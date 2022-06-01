@@ -1,6 +1,3 @@
-from crypt import methods
-from itertools import groupby
-from turtle import pos
 from flask import Response, flash, make_response, request
 import grpc
 
@@ -16,9 +13,11 @@ app.secret_key = 'abc'
 
 
 #Prometheus client will send the metrics to the server
+#****************Prometheus*****************************
 import prometheus_client
 from helpers.middlewear import setup_metrics
 setup_metrics(app)
+#****************Prometheus Ends*****************************
 
 #*********GRPC Client Code*******************************
 class apiClient:
