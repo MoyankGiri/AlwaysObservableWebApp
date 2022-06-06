@@ -9,6 +9,7 @@ Jinja2
 MarkupSafe
 protobuf
 pymongo
+py-grpc-prometheus
 six
 Werkzeug
 zipp

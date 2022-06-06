@@ -9,6 +9,8 @@ import comments_pb2_grpc
 import pymongo
 from pymongo.collection import ReturnDocument
 from bson.objectid import ObjectId
+from prometheus_client import start_http_server
+from py_grpc_prometheus.prometheus_server_interceptor import PromServerInterceptor
 
 class commentServiceServicer(comments_pb2_grpc.commentServiceServicer):
 
@@ -71,11 +73,13 @@ class commentServiceServicer(comments_pb2_grpc.commentServiceServicer):
 
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
+    #server = grpc.server(futures.ThreadPoolExecutor(max_workers=10),interceptors=(PromServerInterceptor(enable_handling_time_histogram=True, skip_exceptions=True),))
     comments_pb2_grpc.add_commentServiceServicer_to_server(
         commentServiceServicer(),server
     )
     print("Server is Running")
     server.add_insecure_port('[::]:5051')
+    #start_http_server(5053) # server metrics is located at http://localhost:5053
     server.start()
     server.wait_for_termination()
 

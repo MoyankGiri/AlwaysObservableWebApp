@@ -1,8 +1,11 @@
 import os
 from flask import Response, flash, jsonify, make_response, render_template_string, request
 import grpc
+from prometheus_client import start_http_server
+from py_grpc_prometheus.prometheus_client_interceptor import PromClientInterceptor
 
 DOCKER = True
+debugFlag = 1
 
 import sys
 if DOCKER:
@@ -180,16 +183,19 @@ class appClient:
 
     def __init__(self) -> None:
         print(commentMicroServiceOSENV,file=sys.stderr)
-        commentChannel = grpc.insecure_channel(f"{commentMicroServiceOSENV}:5051")
-        print(f"Comment Channel {commentChannel}",file=sys.stderr)
+        #commentChannel = grpc.intercept_channel(grpc.insecure_channel(f"{commentMicroServiceOSENV}:5051"),PromClientInterceptor())
+        commentChannel = grpc.intercept_channel(grpc.insecure_channel(f"{commentMicroServiceOSENV}:5051"),PromClientInterceptor())
+        if debugFlag: print(f"app.py: Comment Channel {commentChannel}",file=sys.stderr)
         self.comment_stub = comments_pb2_grpc.commentServiceStub(commentChannel)
-        print(self.comment_stub,file=sys.stderr)
+        #start_http_server(5052) # client metrics is located at http://localhost:5052
+        if debugFlag: print(f"app.py: comment stub: {self.comment_stub}",file=sys.stderr)
     
     def create_comment(self,title,body,author):
         newComment = None
         try:
 
             newComment = self.comment_stub.createComment(comments_pb2.aComment(title = title,body = body,author = author,parentPost = "root",parentComment = "root",userID = "1"))
+            if debugFlag: print(f"app.py: new Comment object: {newComment}",file=sys.stderr)
         except Exception as e:
             print(f"[ERROR]: {e}")
         finally:
@@ -198,9 +204,15 @@ class appClient:
                 return 
             try:
                 commentResponseReceived = self.comment_stub.GetCreatedComment(comments_pb2.CreatedCommentResponse(commentID = str(newComment.id)))
+                if debugFlag: print(f"app.py: Comment Response Received in create_comment: {commentResponseReceived}")
                 return commentResponseReceived
             except Exception as e:
                 print(f"[ERROR]: {e}")
+    def GetCreatedComment(self, request, context):
+        self.makeConnection()
+        createdComment = (self.collection.find({"_id":ObjectId(request.commentID)}))[0]
+        if debugFlag: print(f"app.py: createdComment Object {createdComment}")
+        return comments_pb2.commentItem(id = request.commentID,title = createdComment["title"],body = createdComment["body"],author = createdComment["author"],parentPost = createdComment["parentPost"],parentComment = createdComment["parentComment"],userID = createdComment["userID"])
 
 
 
