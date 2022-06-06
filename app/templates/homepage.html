@@ -58,7 +58,7 @@
   $("#edit").click(function(event){
       var blogid = event.target.parentElement.id;
       alert(blogid)
-      window.location = "{{url_for('editBlog')}}"+`?blogid=${blogid}`;
+      window.location = "{{url_for('updateBlog')}}"+`?blogid=${blogid}`;
   })
 </script>
 

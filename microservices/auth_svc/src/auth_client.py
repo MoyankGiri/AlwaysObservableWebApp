@@ -34,7 +34,7 @@ async def auth(stub:user_pb2_grpc.userServiceServicer,token):
         print(f'[ERROR] : {e}')
         
 async def main():
-    async with grpc.aio.insecure_channel('localhost:50051') as channel:
+    async with grpc.aio.insecure_channel('localhost:50056') as channel:
         stub = user_pb2_grpc.userServiceStub(channel)
 
         # print("-------CREATE ACCOUNT-------")

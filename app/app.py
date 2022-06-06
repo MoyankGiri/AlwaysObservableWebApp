@@ -47,24 +47,30 @@ setup_metrics(app)
 class apiClient:
     def __init__(self) -> None:
         #good practice to reuse channels and stubs across multiple connections
-        post_channel = grpc.insecure_channel("postmicroservice:50051")
-        user_channel = grpc.insecure_channel("authmicroservice:50056")
-        print(f"Post Channel {post_channel}")
-        print(f"User Channel {user_channel}")
+        if DOCKER:
+            post_channel = grpc.insecure_channel("postmicroservice:50051")
+            user_channel = grpc.insecure_channel("authmicroservice:50056")
+            print(f"Post Channel {post_channel}")
+            print(f"User Channel {user_channel}")
+        else:
+            post_channel = grpc.insecure_channel("localhost:50051")
+            user_channel = grpc.insecure_channel("localhost:50056")
+            print(f"Post Channel {post_channel}")
+            print(f"User Channel {user_channel}")
+
         self.user_stub = user_pb2_grpc.userServiceStub(user_channel)
         self.post_stub = post_pb2_grpc.postServiceStub(post_channel)
     
     def signup(self,username,password):
         print(f"********{username},{password}********")
-        success = {'success': False}
-        try:
-            success = self.user_stub.createAccount(user_pb2.aUser(username=username,password=password))
-            print(success)
-        except Exception as e:
-            print(f"[ERROR]: {e}")
-        finally:
-            print(f"Success {success}")
-            return success
+
+        response = self.user_stub.createAccount(user_pb2.aUser(username=username,password=password))
+        print("Recieved from GRPC:",response)
+
+        if response!=None:
+            return response
+        else:
+            print("Couldnt recieve response from grpc server")
 
     def createBlog(self,title,body,author,userID):
         post = {
@@ -87,14 +93,15 @@ class apiClient:
 
     def signup(self,username,password):
         print(f"********{username},{password}********")
+        success = {'success':False}
         try:
             success = self.user_stub.createAccount(user_pb2.aUser(username=username,password=password))
             print(success)
         except Exception as e:
             print(f"[ERROR]: {e}")
-        finally:
             print(f"Success {success}")
             return success
+            
             
     def delete_post(self,blogid,userid):
         print(f"********{blogid,userid}********")
@@ -249,15 +256,20 @@ def logout():
 @app.route("/createAccount",methods=['POST','GET'])
 def createAccount():
     if request.method=='POST':
-        success = apic.signup(request.form.get('username'),request.form.get('password'))
-        if success.success:
+        response = apic.signup(request.form.get('username'),request.form.get('password'))
+        print(f"Recieved from API client object server : {response}")
+
+        if response!=None and response.success:
             #render success page and redirect to login UI
-            flash(success.msg)
+            # flash(response.msg)
             return render_template('login.html')
-        else:
+        elif response!=None:
             #render the create Account page again
-            flash(success.msg)
+            # flash(response.msg)
             return render_template('signup.html')
+        else:
+            return render_template('login.html')
+
     elif request.method=='GET':
         return render_template('signup.html')
 
@@ -269,18 +281,16 @@ def login():
         session = apic.signin(request.form.get('username'),request.form.get('password'))
         print(f"Login session *****{session}*****")
 
-        try:
+        if session!=None:
             if session.success:
                 # flash(session.msg)
                 response = make_response(render_template('homepage.html'))
                 response.set_cookie('token',session.token)
                 return response
             else:
-                # flash(session.msg)
                 response = make_response(render_template('login.html'))
                 return response
-        except Exception as e:
-            print(f'Error {e}')
+        else:
             return render_template('login.html')
 
 @app.route("/createBlog",methods=['POST','GET'])
@@ -289,8 +299,9 @@ def createBlog():
     # authRes = await authroize_user(request.headers['Token'])
     authRes = apic.authorize_user(request.cookies.get('token'))
     print(authRes)
-    if authRes.success:
-        print("Authorized user!!!")
+    try:
+        if authRes.success:
+            print("Authorized user!!!")
         if request.method == 'GET':
             print("Redirect to create blog....")
             return render_template('create_blog.html')
@@ -300,8 +311,10 @@ def createBlog():
                 return render_template('success.html')
             else:
                 return render_template('failed.html')
-    else:
+    except Exception as e:
+        print(e)
         return render_template('login.html')
+       
 
 @app.route("/readBlogs",methods=['GET'])
 def readBlogs():

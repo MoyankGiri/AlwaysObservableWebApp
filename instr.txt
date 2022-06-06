@@ -47,6 +47,8 @@ minikube   Ready    control-plane,master   36m   v1.23.1   192.168.49.2   <none>
 kubectl exec authmongodb-75c46b9457-gm5rq    -i -- bash
 mongo
 
+//to watch logs
+kubectl logs authmicroservice-775bd5669c-fjnxn  --tail 1 --follow
 
 create docker containers
 push them to docker registry

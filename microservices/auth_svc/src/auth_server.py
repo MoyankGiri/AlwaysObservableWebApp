@@ -24,8 +24,10 @@ class userServiceServicer(user_grpc.userServiceServicer):
     def makeConnection(self):
         print("Creating connection to mongodb....")
         self.conn = pymongo.MongoClient(os.environ.get('DB'))
+        # self.conn = pymongo.MongoClient(port=27017)
         self.db = self.conn["users"]
         self.collection = self.db["posts"]
+        print("Connection Created!")
 
     def createAccount(self,req,ctx):
         self.makeConnection()
@@ -46,9 +48,17 @@ class userServiceServicer(user_grpc.userServiceServicer):
             res = self.collection.find_one({'username':username})
             print(f'Found in db: {res}')
             if res:
+                temp = user_pb2.isSuccess(
+                    success=False,
+                    msg="Account already exists in database,please login...",
+                    userID = res['username']
+                )
+                print("User Found in mongo!")
+                print(temp)
                 return user_pb2.isSuccess(
-                    success=0,
-                    msg="Account already exists in database,please login..."
+                    success=False,
+                    msg="Account already exists in database,please login...",
+                    userID=res['username']
                 )
             else:
                 print("New user!!!")
@@ -100,6 +110,7 @@ class userServiceServicer(user_grpc.userServiceServicer):
                 try:
                     decoded = jwt.decode(token, key, algorithms=['HS256', ])
                     if decoded:
+                        print("Username and password matched!!!!")
                         return user_pb2.session(
                             success = 1,
                             msg = "User found and password matched!",
@@ -109,6 +120,7 @@ class userServiceServicer(user_grpc.userServiceServicer):
                     else:
                         raise Exception("Faield to decode :(")
                 except Exception as e:
+                    print("Failed while decoding!!")
                     print(e)
                     return user_pb2.session(
                         success = 0,
