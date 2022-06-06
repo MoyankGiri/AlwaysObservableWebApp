@@ -1,0 +1,6 @@
+mongodb:
+  uri: "mongodb://authmongodb:27017"
+
+serviceMonitor:
+  additionalLabels:
+    release: kind-prom
