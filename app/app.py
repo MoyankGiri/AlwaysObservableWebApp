@@ -35,6 +35,14 @@ from flask import Flask,render_template,request
 app = Flask(__name__)
 app.secret_key = 'abc'
 
+
+#Prometheus client will send the metrics to the server
+#****************Prometheus*****************************
+import prometheus_client
+from helpers.middlewear import setup_metrics
+setup_metrics(app)
+#****************Prometheus Ends*****************************
+
 #*********GRPC Client Code*******************************
 class apiClient:
     def __init__(self) -> None:
@@ -222,6 +230,11 @@ apic = apiClient()
 
 #**put this to the apiClient class itself please**
 appclient = appClient()
+
+@app.route("/metrics")
+def metrics():
+    #create and send response to the prometheus querying server
+    return Response(prometheus_client.generate_latest(),mimetype=str('text/plain; version=0.0.4; charset=utf-8'))
 
 @app.route("/",methods=['GET'])
 def landing():
