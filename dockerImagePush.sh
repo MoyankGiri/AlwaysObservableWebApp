@@ -1,8 +1,15 @@
-docker tag commentmicroservice pes1ug19cs280/hpcty:commentmicroservice
-docker push pes1ug19cs280/hpcty:commentmicroservice
-docker tag apigateway pes1ug19cs280/hpcty:apigateway
-docker push pes1ug19cs280/hpcty:apigateway
-docker tag postmicroservice pes1ug19cs280/hpcty:postmicroservice
-docker push pes1ug19cs280/hpcty:postmicroservice
-docker tag authmicroservice pes1ug19cs280/hpcty:authmicroservice
-docker push pes1ug19cs280/hpcty:authmicroservice
+
+
+
+
+# $1->account name
+# $2-> reponame
+
+docker tag commentmicroservice $1/$2:commentmicroservice
+docker push $1/$2:commentmicroservice
+docker tag apigateway $1/$2:apigateway
+docker push $1/$2:apigateway
+docker tag postmicroservice $1/$2:postmicroservice
+docker push $1/$2:postmicroservice
+docker tag authmicroservice $1/$2:authmicroservice
+docker push $1/$2:authmicroservice

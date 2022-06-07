@@ -25,8 +25,8 @@ class userServiceServicer(user_grpc.userServiceServicer):
         print("Creating connection to mongodb....")
         self.conn = pymongo.MongoClient(os.environ.get('DB'))
         # self.conn = pymongo.MongoClient(port=27017)
-        self.db = self.conn["users"]
-        self.collection = self.db["posts"]
+        self.db = self.conn["blog_app"]
+        self.collection = self.db["users"]
         print("Connection Created!")
 
     def createAccount(self,req,ctx):

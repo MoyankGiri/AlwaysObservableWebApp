@@ -15,9 +15,10 @@ from bson.objectid import ObjectId
 
 class postServiceServicer(post_grpc.postServiceServicer):
     def makeConnection(self):
-        # print("Creating connection to mongodb....")
+        print("Creating connection to mongodb....")
+        print("To connect to",os.environ.get("DB"))
         self.conn = pymongo.MongoClient(os.environ.get('DB'))
-        self.db = self.conn["blog"]
+        self.db = self.conn["blog_app"]
         self.collection = self.db["posts"]
 
         # print("Deleting data...")

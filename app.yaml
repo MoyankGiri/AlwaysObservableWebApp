@@ -17,7 +17,7 @@ spec:
         spec:
             containers:
                 - name: commentmicroservice
-                  image: pes1ug19cs280/hpcty:commentmicroservice
+                  image: chandradharrao/cty_dev_repo:commentmicroservice
                   env:
                     - name: DB
                       value: commentmongodb
@@ -62,7 +62,7 @@ spec:
         spec:
             containers:
                 - name: postmicroservice
-                  image: pes1ug19cs280/hpcty:postmicroservice
+                  image: chandradharrao/cty_dev_repo:postmicroservice
                   env:
                     - name: DB
                       value: postmongodb
@@ -107,7 +107,7 @@ spec:
         spec:
             containers:
                 - name: authmicroservice
-                  image: pes1ug19cs280/hpcty:authmicroservice
+                  image: chandradharrao/cty_dev_repo:authmicroservice
                   env:
                     - name: DB
                       value: authmongodb
@@ -293,7 +293,7 @@ spec:
     spec:
       containers:
         - name: apigateway
-          image: pes1ug19cs280/hpcty:apigateway
+          image: chandradharrao/cty_dev_repo:apigateway
           env:
             - name: DB
               value: mongodb://mongodb:27017
