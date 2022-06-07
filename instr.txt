@@ -38,6 +38,9 @@ kubectl get nodes -o wide
 //to access the apigateway service, use port forwarding
 kubectl port-forward svc/apigateway 5000
 
+//to follow logs
+❯ kubectl logs apigateway-867bd8975f-szhpr -f   
+
 we get the node-ip from the internal-ip column of the get nodes command
 
 NAME       STATUS   ROLES                  AGE   VERSION   INTERNAL-IP    EXTERNAL-IP   OS-IMAGE             
