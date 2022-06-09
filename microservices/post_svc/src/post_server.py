@@ -14,18 +14,20 @@ from pymongo.collection import ReturnDocument
 from bson.objectid import ObjectId
 
 class postServiceServicer(post_grpc.postServiceServicer):
-    def makeConnection(self):
+    def __init__(self) -> None:
+        super().__init__()
+
         print("Creating connection to mongodb....")
-        print("To connect to",os.environ.get("DB"))
+        print("To connect to",os.environ.get("DB") or 'port=27017')
         self.conn = pymongo.MongoClient(os.environ.get('DB'))
         self.db = self.conn["blog_app"]
         self.collection = self.db["posts"]
+        print("Made connections to post db!")
 
         # print("Deleting data...")
         # self.collection.delete_many({})
 
     def deletePost(self,req,ctx):
-        self.makeConnection()
         print("Deleting record....")
         res = False
 
@@ -38,7 +40,6 @@ class postServiceServicer(post_grpc.postServiceServicer):
             return post_pb2.isSuccess(success=res.acknowledged)
 
     def updatePost(self,req,ctx):
-        self.makeConnection()
         print("Updating record....")
         ret = None
 
@@ -79,28 +80,25 @@ class postServiceServicer(post_grpc.postServiceServicer):
                 lastUpdatedDate = "",
                 )
         finally:
-            self.conn.close()
+            
             return ret
 
     #return posts of a specific user
     def authorPosts(self,req,ctx):
-        self.makeConnection()
-        
         try:
             posts = self.collection.find({'userID':req.userID})
             print("Posts found are: ",posts)
             all_posts = post_pb2.Posts()
             for row in posts:
                 all_posts.posts.append(post_pb2.postPreview(title=row['title'],author=row['author'],creationDate=str(row['creationDate']),id=str(row['_id'])))
-            self.conn.close()
+            
             return all_posts
         except Exception as e:
             print("[Error]:",e)
-            self.conn.close()
+            
             return post_pb2.Posts()
             
     def create(self,req,ctx):
-        self.makeConnection()
         print("Creating row....")
         ret = None
 
@@ -131,7 +129,7 @@ class postServiceServicer(post_grpc.postServiceServicer):
                 userID=req.userID
             )
             print("returning:",ret)
-            self.conn.close()
+            
             return ret
         except Exception as e:
             print("Exception?",e)
@@ -144,12 +142,10 @@ class postServiceServicer(post_grpc.postServiceServicer):
                 lastUpdatedDate = "",
                 userID=""
                 )
-            self.conn.close()
+            
             return ret
 
     def fetchRecent(self,req,ctx):
-        self.makeConnection()
-
         allPosts = post_pb2.Posts()
         constraint = datetime.now() - timedelta(minutes=int(req.duration))
 
@@ -164,7 +160,6 @@ class postServiceServicer(post_grpc.postServiceServicer):
 
     def readOne(self,req,ctx):
         print("req:",req)
-        self.makeConnection()
         ret = None
 
         try:
@@ -174,8 +169,6 @@ class postServiceServicer(post_grpc.postServiceServicer):
             if not row:
                 raise ValueError("No object found in db!")
             else:
-                self.conn.close()
-
                 return post_pb2.aPost(
                 id=f'{req.id}',
                 title=row["title"],
@@ -187,8 +180,6 @@ class postServiceServicer(post_grpc.postServiceServicer):
                 )
         except Exception as e:
             print("[ERROR]",e)
-            self.conn.close()
-
             return post_pb2.aPost(
                     id = "",
                     title = "",

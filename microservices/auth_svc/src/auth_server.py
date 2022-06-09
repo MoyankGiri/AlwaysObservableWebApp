@@ -21,16 +21,18 @@ from cryptography.hazmat.primitives import serialization
 import os
 key = "secret"
 class userServiceServicer(user_grpc.userServiceServicer):
-    def makeConnection(self):
+    def __init__(self) -> None:
+        super().__init__()
+
         print("Creating connection to mongodb....")
-        self.conn = pymongo.MongoClient(os.environ.get('DB'))
+        self.conn = pymongo.MongoClient(os.environ.get('DB') or 'port=27017')
         # self.conn = pymongo.MongoClient(port=27017)
         self.db = self.conn["blog_app"]
         self.collection = self.db["users"]
-        print("Connection Created!")
+        print("Connection Created!")       
 
     def createAccount(self,req,ctx):
-        self.makeConnection()
+        
 
         print("Creating Account for user")
         try:
@@ -82,7 +84,7 @@ class userServiceServicer(user_grpc.userServiceServicer):
             )
 
     def login(self,req,ctx):
-        self.makeConnection()
+        
         username = req.username
         password = req.password.encode('utf-8')
 

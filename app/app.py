@@ -4,7 +4,7 @@ import grpc
 from prometheus_client import start_http_server
 from py_grpc_prometheus.prometheus_client_interceptor import PromClientInterceptor
 
-DOCKER = True
+DOCKER = False
 debugFlag = 1
 
 import sys
@@ -278,10 +278,10 @@ def login():
     if request.method == 'GET':
         return render_template('login.html')
     elif request.method=='POST':
-        session = apic.signin(request.form.get('username'),request.form.get('password'))
-        print(f"Login session *****{session}*****")
+        try:
+            session = apic.signin(request.form.get('username'),request.form.get('password'))
+            print(f"Login session *****{session}*****")
 
-        if session!=None:
             if session.success:
                 # flash(session.msg)
                 response = make_response(render_template('homepage.html'))
@@ -290,7 +290,8 @@ def login():
             else:
                 response = make_response(render_template('login.html'))
                 return response
-        else:
+
+        except Exception as e:
             return render_template('login.html')
 
 @app.route("/createBlog",methods=['POST','GET'])
@@ -352,10 +353,13 @@ def updateBlog():
     authRes = apic.authorize_user(request.cookies.get("token"))
     if authRes.success:
         if request.method=='POST':
-            print("User Authorized,Updating the blog content....")
-            updatedBlog = apic.edit_blog(request.args.get("blogid"),authRes.userID,request.form.to_dict())
-            print("Blog article updated!",updatedBlog)
-            return render_template("success.html")
+            try:
+                print("User Authorized,Updating the blog content....")
+                updatedBlog = apic.edit_blog(request.args.get("blogid"),authRes.userID,request.form.to_dict())
+                print("Blog article updated!",updatedBlog)
+                return render_template("success.html")
+            except Exception as e:
+                return render_template("failed.html")
         else:
             if request.method=='GET':
                 #return the blog with the earlier data
@@ -364,18 +368,23 @@ def updateBlog():
 
 @app.route("/deleteBlog",methods=['GET'])
 def deleteBlog():
-    #check if the blog actually belongs to him
-    authRes = apic.authorize_user(request.cookies.get("token"))
-    if authRes.success:
-        print("User Authorized!!")
-        if request.method == 'GET':
-            isSuccess = apic.delete_post(request.args.get("blogid"),authRes.userID)
-            print("isSuccess",isSuccess)
-            if isSuccess.success:
-                return render_template('success.html')
-            else:
-                return render_template('failed.html')
-    else:
+    try:
+        #check if the blog actually belongs to him
+        authRes = apic.authorize_user(request.cookies.get("token"))
+        if authRes.success:
+            print("User Authorized!!")
+            if request.method == 'GET':
+                isSuccess = apic.delete_post(request.args.get("blogid"),authRes.userID)
+                print("isSuccess",isSuccess)
+                if isSuccess.success:
+                    return render_template('success.html')
+                else:
+                    return render_template('failed.html')
+        else:
+            return render_template('failed.html')
+
+    except Exception as e:
+        print(e)
         return render_template('failed.html')
 
 @app.route("/readOne",methods=['GET'])
