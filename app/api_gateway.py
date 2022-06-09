@@ -11,6 +11,10 @@ from flask import Flask,render_template,request
 app = Flask(__name__)
 app.secret_key = 'abc'
 
+from py_grpc_prometheus.prometheus_client_interceptor import PromClientInterceptor as grpc_interceptor
+posts_client_metrics = 8000
+users_client_metrics = 8069
+
 
 #Prometheus client will send the metrics to the server
 #****************Prometheus*****************************
@@ -23,8 +27,15 @@ setup_metrics(app)
 class apiClient:
     def __init__(self) -> None:
         #good practice to reuse channels and stubs across multiple connections
-        post_channel = grpc.insecure_channel('localhost:50051')
+        post_channel = grpc.intercept_channel(
+            grpc.insecure_channel('localhost:50051'),
+            grpc_interceptor()
+        )
         user_channel = grpc.insecure_channel('localhost:50056')
+
+        start = prometheus_client.start_http_server(8011)
+
+
         print(f"Post Channel {post_channel}")
         print(f"User Channel {user_channel}")
         self.user_stub = user_pb2_grpc.userServiceStub(user_channel)
@@ -280,5 +291,5 @@ def readOne():
             return render_template('failed.html')
 
 if __name__ == '__main__':
-    app.debug = True
+    app.debug = False
     app.run(host = '0.0.0.0',port=5000)
