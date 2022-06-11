@@ -2,6 +2,7 @@ from flask import Response, flash, make_response, request
 import grpc
 
 import sys
+from error_middlewear import count_error
 sys.path.insert(0,'/home/chandradhar/Projects/CTY/AlwaysObservableWebApp/microservices/auth_svc/src')
 sys.path.insert(0,'/home/chandradhar/Projects/CTY/AlwaysObservableWebApp/microservices/post_svc/src')
 import user_pb2_grpc,user_pb2
@@ -15,7 +16,6 @@ from py_grpc_prometheus.prometheus_client_interceptor import PromClientIntercept
 posts_client_metrics = 8000
 users_client_metrics = 8069
 
-
 #Prometheus client will send the metrics to the server
 #****************Prometheus*****************************
 import prometheus_client
@@ -27,13 +27,16 @@ setup_metrics(app)
 class apiClient:
     def __init__(self) -> None:
         #good practice to reuse channels and stubs across multiple connections
+
+        #create an interceptor for the post server client
         post_channel = grpc.intercept_channel(
             grpc.insecure_channel('localhost:50051'),
             grpc_interceptor()
         )
-        user_channel = grpc.insecure_channel('localhost:50056')
+        prometheus_client.start_http_server(8011)
 
-        start = prometheus_client.start_http_server(8011)
+
+        user_channel = grpc.insecure_channel('localhost:50056')
 
 
         print(f"Post Channel {post_channel}")
@@ -123,6 +126,7 @@ class apiClient:
                 return result
         except Exception as e:
             print("Unsuccessful auth :(")
+            count_error('POST','authToken','unable to authorize user')
             print(e)
             return result
 
@@ -231,6 +235,7 @@ def createBlog():
             else:
                 return render_template('failed.html')
     else:
+        count_error('POST','createBlog','Unauthorized access')
         return render_template('login.html')
 
 @app.route("/readBlogs",methods=['GET'])
@@ -245,7 +250,7 @@ def readBlogs():
         else:
             #display empty page
             print("Nothing to fetch :(")
-            return render_template("failed.html")
+            return render_template("no_blogs.html")
     else:
         return render_template("homepage.html")
 
@@ -262,6 +267,7 @@ def homepage():
             print("Posts retrieved:",all_posts)
             return render_template("homepage.html",items=list(all_posts)[::-1])
     else:
+        count_error('GET','home','Unauthorized access')
         return render_template("failed.html")
 
 @app.route("/deleteBlog",methods=['GET'])
@@ -278,6 +284,7 @@ def deleteBlog():
             else:
                 return render_template('failed.html')
     else:
+        count_error('GET','deleteBlog','Unauthorized access')
         return render_template('failed.html')
 
 @app.route("/readOne",methods=['GET'])

@@ -25,10 +25,16 @@ add edit posts/update posts button
 add in comments UI in blog posts
 add logout UI in navbar
 add dropdown to allow user to select "fetchRecent" time parameter and send it in the request.
+add all port numbers in .env file
+add graphana UI
+add htp level error metrics
+add grpc inbuilt client/server metrics
 
 //prometheus
 1.if not already configured, at the file: /home/chandradhar/prometheus-2.34.0.linux-amd64/prometheus.yml, change the target to the webapplication url
 
 2.to start prometheus, go to the prometheus directory located at: /home/chandradhar/prometheus-2.34.0.linux-amd64 and run ./prometheus
 
-3. goto localhost:9090/graphs to see the graphs in the browser
+3.Add all /metrics target post numbers as values in prometheus.yml's targets key list
+
+4. goto localhost:9090/graphs to see the graphs in the browser

@@ -5,6 +5,8 @@ from concurrent import futures
 from multiprocessing.sharedctypes import Value
 from time import strftime, strptime
 import grpc
+import prometheus_client
+from error_middlewear import count_error
 
 import post_pb2
 import post_pb2_grpc as post_grpc
@@ -33,6 +35,9 @@ class postServiceServicer(post_grpc.postServiceServicer):
             res = self.collection.delete_one({"_id":ObjectId(req.id),"userID":req.userID})
             if not res.acknowledged:
                 raise ValueError("Unable to delete record from db!")
+        except Exception as e:
+            print(e)
+            count_error('GET','deletePost','post not present in database')
         finally:
             return post_pb2.isSuccess(success=res.acknowledged)
 
@@ -69,6 +74,7 @@ class postServiceServicer(post_grpc.postServiceServicer):
             else:
                 raise ValueError("No doc updated!")
         except:
+            count_error('POST','updateBlog','blog not found')
             ret = post_pb2.aPost(
                 id = "",
                 title = "",
@@ -100,12 +106,18 @@ class postServiceServicer(post_grpc.postServiceServicer):
             
     def create(self,req,ctx):
         self.makeConnection()
-        print("Creating row....")
+        print("Creating entry....")
         ret = None
 
         # today = date.today().strftime("%d-%m-%y")
         today = datetime.now()
         try:
+            #check if any field is empty
+            if not req.title or not req.body or not today or not req.userid:
+                print("Data not provided for post creation!")
+                count_error('POST','createBlog','no data to exreate blog')
+                raise ValueError("No data to create post!")
+
             #insert row of data
             data = {
                 "title":req.title,
@@ -153,12 +165,20 @@ class postServiceServicer(post_grpc.postServiceServicer):
         constraint = datetime.now() - timedelta(minutes=int(req.duration))
 
         allRows = self.collection.find({})
+        print("Posts found are: ",allRows)
+
+        num_posts=0
         for row in allRows:
-            # print(f'ROW {row}')
+            print(f'ROW {row}')
             currDate = row['creationDate']
             if currDate > constraint:
                 allPosts.posts.append(post_pb2.postPreview(title=row['title'],author=row['author'],creationDate=str(row['creationDate']),id=str(row['_id'])))
-                
+                num_posts+=1
+
+        if num_posts==0:
+            count_error("GET","fetchPosts","no posts to fetch!")  
+            print("No posts found :(")
+
         return allPosts
 
     def readOne(self,req,ctx):
@@ -209,5 +229,6 @@ def serve():
 
 if __name__ == "__main__":
     logging.basicConfig()
+    prometheus_client.start_http_server(6996)
     serve()
 
