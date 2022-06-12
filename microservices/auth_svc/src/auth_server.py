@@ -24,8 +24,8 @@ class userServiceServicer(user_grpc.userServiceServicer):
     def __init__(self) -> None:
         super().__init__()
 
-        print("Creating connection to mongodb....")
-        self.conn = pymongo.MongoClient(os.environ.get('DB') or 'port=27017')
+        print("Creating connection to mongodb on",os.environ.get('DB') or "mongodb://localhost:27017/")
+        self.conn = pymongo.MongoClient(os.environ.get('DB') or "mongodb://localhost:27017/")
         # self.conn = pymongo.MongoClient(port=27017)
         self.db = self.conn["blog_app"]
         self.collection = self.db["users"]

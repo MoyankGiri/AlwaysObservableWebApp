@@ -4,7 +4,7 @@ import grpc
 from prometheus_client import start_http_server
 from py_grpc_prometheus.prometheus_client_interceptor import PromClientInterceptor
 
-DOCKER = True
+DOCKER = False
 debugFlag = 1
 
 import sys

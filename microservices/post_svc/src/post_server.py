@@ -18,8 +18,8 @@ class postServiceServicer(post_grpc.postServiceServicer):
         super().__init__()
 
         print("Creating connection to mongodb....")
-        print("To connect to",os.environ.get("DB") or 'port=27017')
-        self.conn = pymongo.MongoClient(os.environ.get('DB'))
+        print("To connect to",os.environ.get("DB") or "mongodb://localhost:27017/")
+        self.conn = pymongo.MongoClient(os.environ.get('DB') or "mongodb://localhost:27017/")
         self.db = self.conn["blog_app"]
         self.collection = self.db["posts"]
         print("Made connections to post db!")
