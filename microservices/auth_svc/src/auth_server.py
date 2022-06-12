@@ -22,6 +22,7 @@ key = "secret"
 
 from error_middlewear import count_error
 import prometheus_client
+from py_grpc_prometheus.prometheus_server_interceptor import PromServerInterceptor
 
 
 
@@ -144,17 +145,17 @@ class userServiceServicer(user_grpc.userServiceServicer):
             return user_pb2.isSuccess(success=0,msg="Unable to authorized",userID="") 
 
 def serve():
-    server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
+    server = grpc.server(futures.ThreadPoolExecutor(max_workers=10),interceptors=(PromServerInterceptor(),))
     user_grpc.add_userServiceServicer_to_server(
         userServiceServicer(),server
     )
+    prometheus_client.start_http_server(7299) 
+
     server.add_insecure_port('[::]:50056')
     server.start()
     server.wait_for_termination()
 
 if __name__ == "__main__":
-    prometheus_client.start_http_server(7299) #expose this to prometheus?
-
     logging.basicConfig()
     serve()
 
