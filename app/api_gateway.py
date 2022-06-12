@@ -28,6 +28,10 @@ class apiClient:
     def __init__(self) -> None:
         #good practice to reuse channels and stubs across multiple connections
 
+        '''
+        Have a look at this?
+        This looks crazy and messy!
+        '''
         #create an interceptor for the post server client
         post_channel = grpc.intercept_channel(
             grpc.insecure_channel('localhost:50051'),
