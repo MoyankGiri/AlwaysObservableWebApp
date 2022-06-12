@@ -8,6 +8,8 @@ DOCKER = False
 debugFlag = 1
 
 import sys
+from error_middlewear import count_error
+
 if DOCKER:
     sys.path.insert(1,'/webapp/microservices/post_svc/src')
     sys.path.insert(1,'/webapp/microservices/auth_svc/src')
@@ -38,6 +40,10 @@ app.secret_key = 'abc'
 
 #Prometheus client will send the metrics to the server
 #****************Prometheus*****************************
+from py_grpc_prometheus.prometheus_client_interceptor import PromClientInterceptor as grpc_interceptor
+posts_client_metrics = 8000
+users_client_metrics = 8069
+
 import prometheus_client
 from helpers.middlewear import setup_metrics
 setup_metrics(app)
@@ -143,6 +149,8 @@ class apiClient:
                 return result
         except Exception as e:
             print("Unsuccessful auth :(")
+            count_error('POST','authToken','unable to authorize user')
+            print(e)
             print(e)
             return result
 
@@ -325,6 +333,7 @@ def createBlog():
                 return render_template('failed.html')
     except Exception as e:
         print(e)
+        count_error('POST','createBlog','Unauthorized access')
         return render_template('login.html')
        
 
@@ -357,6 +366,7 @@ def homepage():
             print("Posts retrieved:",all_posts)
             return render_template("homepage.html",items=list(all_posts)[::-1])
     else:
+        count_error('GET','home','Unauthorized access')
         return render_template("failed.html")
 
 @app.route("/editBlog",methods=['GET','POST'])
@@ -390,6 +400,7 @@ def deleteBlog():
                 if isSuccess.success:
                     return render_template('success.html')
                 else:
+                    count_error('GET','deleteBlog','Unauthorized access')
                     return render_template('failed.html')
         else:
             return render_template('failed.html')
