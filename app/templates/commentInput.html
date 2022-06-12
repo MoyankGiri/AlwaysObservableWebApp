@@ -1,33 +1,55 @@
-<!DOCTYPE html>
-<html>
-    <body>
-        <h2>Sample Blog</h2>
-        <p>
-        Non irure occaecat adipisicing enim incididunt aliquip exercitation sit ut non dolor. Ea ex cillum officia anim proident enim ex minim et elit consectetur do. Velit occaecat esse laboris consequat. Laboris labore labore id ad sunt fugiat magna.
-        </p>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"> 
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
 
-        <form method="post">
-            <label for="title">Title</label>
-            <br>
-            <input type="text" name="title"
-                   placeholder="Message title"
-                   value="{{ request.form['title'] }}"></input>
-            <br>
-            <label for="author">Author</label>
-            <br>
-            <input type="text" name="author"
-                   placeholder="Comment author"
-                   value="{{ request.form['author'] }}"></input>
-            <br>
-            <label for="body">Comment Body</label>
-            <br>
-            <textarea name="body"
-                      placeholder="Add comment"
-                      rows="15"
-                      cols="60"
-                      >{{ request.form['body'] }}</textarea>
-            <br>
-            <button type="submit">Submit</button>
-        </form>
-    </body>
-</html>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container">
+            <a class="navbar-brand" href="/home">Home</a>
+          <a class="navbar-brand" href="/readBlogs">Read More</a>
+          <a class="navbar-brand" href="/createBlog">Create Blog</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="jumbotron">
+            <blockquote class="blockquote text-center">
+                <h1 class="display-3">{{post.title}}</h1>
+                <p class="mb-0">{{post.body}}</p>
+                <footer class="blockquote-footer"><cite title="Source Title">{{post.author}}</cite></footer>
+                <p><small>{{post.creationDate}}</small></p>
+            </blockquote>
+        </div>
+    </div>
+    <form action="/createComment" method="post">
+        <div class="form-group row">
+            <label for="blogID" class="col-4 col-form-label"></label> 
+            <div class="col-8">
+              <input id="blogID" name="blogID" placeholder="title" type="hidden" value="{{blogid}}" required="required" class="form-control" spellcheck="false" data-ms-editor="true" readonly>
+            </div>
+          </div>
+        <div class="form-group row">
+          <label for="title" class="col-4 col-form-label">Comment Title</label> 
+          <div class="col-8">
+            <input id="title" name="title" placeholder="title" type="text" required="required" class="form-control" spellcheck="false" data-ms-editor="true">
+          </div>
+        </div>
+        <div class="form-group row">
+            <label for="author" class="col-4 col-form-label">Comment Author</label> 
+            <div class="col-8">
+              <input id="author" name="author" placeholder="author" type="text" required="required" class="form-control" spellcheck="false" data-ms-editor="true">
+            </div>
+          </div>
+        <div class="form-group row">
+          <label for="body" class="col-4 col-form-label">Comment Body</label> 
+          <div class="col-8">
+            <textarea id="body" name="body" cols="40" rows="5" aria-describedby="bodyHelpBlock" required="required" class="form-control" spellcheck="false" data-ms-editor="true"></textarea> 
+            <span id="bodyHelpBlock" class="form-text text-muted">Your comments</span>
+          </div>
+        </div> 
+        <div class="form-group row">
+          <div class="offset-4 col-8">
+            <button name="submit" type="submit" class="btn btn-primary">Submit</button>
+          </div>
+        </div>
+      </form>
+</body>

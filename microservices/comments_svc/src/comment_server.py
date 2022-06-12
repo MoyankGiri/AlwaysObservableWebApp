@@ -14,16 +14,17 @@ from py_grpc_prometheus.prometheus_server_interceptor import PromServerIntercept
 
 class commentServiceServicer(comments_pb2_grpc.commentServiceServicer):
 
-    def makeConnection(self):
+    def __init__(self) -> None:
+        super().__init__()
+
         self.conn = pymongo.MongoClient(os.environ.get('DB'))
         #self.conn = pymongo.MongoClient("mongodb://localhost:27017/")
-        self.db = self.conn["blog"]
+        self.db = self.conn["blog_app"]
         self.collection = self.db["comments"]
     
 
     def createComment(self,req,ctx):
 
-        self.makeConnection()
         ret = None
         try:
             
@@ -50,14 +51,14 @@ class commentServiceServicer(comments_pb2_grpc.commentServiceServicer):
             print(f"[ERROR]: {e}")
         
         finally:
-            self.conn.close()
             return ret
 
 
     def readComments(self, request, context):
-        self.makeConnection()
-        Comments = self.collection.find({"userID":request.id})
+
         allComments = comments_pb2.CommentItemsList()
+        print(f"comment_server.py: readComments (1): {request.blogid}")
+        Comments = self.collection.find({"parentPost":request.blogid})
         for comment in Comments:
             allComments.comments.append(comments_pb2.aComment(title = comment["title"],body = comment["body"],author = comment["author"],parentPost = comment["parentPost"],parentComment = comment["parentComment"],userID = comment["userID"]))
 
@@ -65,7 +66,7 @@ class commentServiceServicer(comments_pb2_grpc.commentServiceServicer):
     
 
     def GetCreatedComment(self, request, context):
-        self.makeConnection()
+
         createdComment = (self.collection.find({"_id":ObjectId(request.commentID)}))[0]
         return comments_pb2.commentItem(id = request.commentID,title = createdComment["title"],body = createdComment["body"],author = createdComment["author"],parentPost = createdComment["parentPost"],parentComment = createdComment["parentComment"],userID = createdComment["userID"])
 

@@ -20,4 +20,14 @@
             </blockquote>
         </div>
     </div>
+
+    {%for item in items%}
+    <div class="commentContainer">
+        <div class="jumbotron" id="{{item.id}}">
+          <h5 class="mb-0">{{item.title}}</h5>
+          <h5 class="mb-0">{{item.author}}</h5>
+          <p class="mb-0">{{item.body}}</p>
+        </div>
+    </div>
+    {%endfor%}
 </body>

@@ -4,7 +4,7 @@ import grpc
 from prometheus_client import start_http_server
 from py_grpc_prometheus.prometheus_client_interceptor import PromClientInterceptor
 
-DOCKER = False
+DOCKER = True
 debugFlag = 1
 
 import sys
@@ -205,11 +205,11 @@ class appClient:
         #start_http_server(5052) # client metrics is located at http://localhost:5052
         if debugFlag: print(f"app.py: comment stub: {self.comment_stub}",file=sys.stderr)
     
-    def create_comment(self,title,body,author):
+    def create_comment(self,title,body,author,parentpost,userid):
         newComment = None
         try:
 
-            newComment = self.comment_stub.createComment(comments_pb2.aComment(title = title,body = body,author = author,parentPost = "root",parentComment = "root",userID = "1"))
+            newComment = self.comment_stub.createComment(comments_pb2.aComment(title = title,body = body,author = author,parentPost = parentpost,parentComment = "root",userID = userid))
             if debugFlag: print(f"app.py: new Comment object: {newComment}",file=sys.stderr)
         except Exception as e:
             print(f"[ERROR]: {e}")
@@ -223,6 +223,17 @@ class appClient:
                 return commentResponseReceived
             except Exception as e:
                 print(f"[ERROR]: {e}")
+    
+    def readComments(self,BlogID):
+        res = []
+        try:
+            res = self.comment_stub.readComments(comments_pb2.blogID(blogid = BlogID))
+            print(f"app.py: fetched Comments: {res}",file=sys.stderr)
+            return res.comments
+        except Exception as e:
+            print(f"[ERROR]: {e}",file=sys.stderr)
+        return res
+
     def GetCreatedComment(self, request, context):
         self.makeConnection()
         createdComment = (self.collection.find({"_id":ObjectId(request.commentID)}))[0]
@@ -391,36 +402,43 @@ def deleteBlog():
 def readOne():
     if request.method=='GET':
         aPost = apic.read_one(request.args.get('blogid'))
+        res = appclient.readComments(request.args.get('blogid'))
         print("Retrieved a single blog: ",aPost)
         if aPost:
-            return render_template('aPost.html',post=aPost)
+            return render_template('aPost.html',post=aPost,items=list(res))
         else:
             return render_template('failed.html')
 
 @app.route("/createComment",methods = ['GET','POST'])
-def commentCreate():
-    if request.method == 'POST':
-        title = request.form['title']
-        author = request.form['author']
-        body = request.form['body']
-        try:
-            print("Calling here server",file=sys.stderr)
-            commentResponseReceived = appclient.create_comment(title,body,author)
-            print(commentResponseReceived,file=sys.stderr)
-        except Exception as e:
-            print(f"[ERROR]: {e}")
-        finally:
-            if not commentResponseReceived.id:
-                print("ERROR")
-                return 
-            st = "<h2>" + str(commentResponseReceived.title) + "</h2> <h3>" + str(commentResponseReceived.author) +  "</h3> <p>" + str(commentResponseReceived.id) + "<br>" + str(commentResponseReceived.userID) + "<br>" + str(commentResponseReceived.body) + "<br>"
+def createComment():
+    authRes = apic.authorize_user(request.cookies.get('token'))
+    print(authRes)
+    try:
+        if authRes.success:
+            print("Authorized user!!!")
+        if request.method == 'POST':
+            title = request.form['title']
+            author = request.form['author']
+            body = request.form['body']
+            blogid = request.form['blogID']
             try:
-                return render_template_string('<!DOCTYPE html> <html lang="en"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head><body>' + st + '</body></html>')
+                print("Calling here server",file=sys.stderr)
+                commentResponseReceived = appclient.create_comment(title,body,author,blogid,authRes.userID)
+                print(commentResponseReceived,file=sys.stderr)
             except Exception as e:
                 print(f"[ERROR]: {e}")
-                return jsonify(success = False)
-    else:
-        return render_template('commentInput.html')
+            finally:
+                if not commentResponseReceived.id:
+                    return render_template('failed.html')
+                else:
+                    return render_template('success.html')
+        else:
+            aPost = apic.read_one(request.args.get('blogid'))
+            return render_template('commentInput.html',post=aPost,blogid = request.args.get('blogid'))
+    except Exception as e:
+        print(e)
+        render_template('login.html')
+
         
 
 if __name__ == '__main__':

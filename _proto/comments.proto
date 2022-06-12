@@ -2,12 +2,9 @@ syntax = "proto3";
 
 package comment;
 
-import "shared.proto";
-
 service commentService{
     rpc createComment (aComment) returns (commentItem);
-    rpc readComments (shared.uid) returns (CommentItemsList);
-    rpc updateComment (shared.uid) returns (commentItem);
+    rpc readComments (blogID) returns (CommentItemsList);
     rpc GetCreatedComment (CreatedCommentResponse) returns (commentItem);
 }
 
@@ -32,6 +29,10 @@ message aComment{
 
 message CommentItemsList{
     repeated aComment comments = 1;
+}
+
+message blogID{
+    string blogid = 1;
 }
 
 message CreatedCommentResponse{
