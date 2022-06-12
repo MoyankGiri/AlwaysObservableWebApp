@@ -3,6 +3,7 @@ from datetime import date, datetime, timedelta
 
 from concurrent import futures
 from multiprocessing.sharedctypes import Value
+import re
 from time import strftime, strptime
 import grpc
 import prometheus_client
@@ -108,15 +109,19 @@ class postServiceServicer(post_grpc.postServiceServicer):
         self.makeConnection()
         print("Creating entry....")
         ret = None
-
+        print(req.title)
+        print(req.body)
+        print(req.userID)
         # today = date.today().strftime("%d-%m-%y")
         today = datetime.now()
         try:
             #check if any field is empty
-            if not req.title or not req.body or not today or not req.userid:
+            if not req.title or not req.body or not today or not req.userID:
                 print("Data not provided for post creation!")
                 count_error('POST','createBlog','no data to exreate blog')
                 raise ValueError("No data to create post!")
+
+            print("Blog created by:",req.userID)
 
             #insert row of data
             data = {
@@ -162,7 +167,8 @@ class postServiceServicer(post_grpc.postServiceServicer):
         self.makeConnection()
 
         allPosts = post_pb2.Posts()
-        constraint = datetime.now() - timedelta(minutes=int(req.duration))
+        # constraint = datetime.now() - timedelta(minutes=int(req.duration))
+        constraint = datetime.now() - timedelta(minutes=int(1000))
 
         allRows = self.collection.find({})
         print("Posts found are: ",allRows)

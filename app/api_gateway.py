@@ -72,7 +72,7 @@ class apiClient:
                 }
         try:
             post = self.post_stub.create(post_pb2.newPost(title=title,body=body,author=author,userID=userID))
-            print("User's post:",post)
+            print("User's post:",title,body,author,userID)
             return post
 
         except Exception as e:
@@ -139,7 +139,7 @@ class apiClient:
 
         try:
             result = self.post_stub.fetchRecent(post_pb2.when(duration=t*24*60))
-            # print("All posts are:",result)
+            print("All posts are:",result)
             return result.posts
 
         except Exception as e:
@@ -233,6 +233,7 @@ def createBlog():
             print("Redirect to create blog....")
             return render_template('create_blog.html')
         elif request.method == 'POST':
+            print("Info to create Posts are:",request.form.get('title'),request.form.get('body'),request.form.get('author'),authRes.userID)
             aPost = apic.createBlog(request.form.get('title'),request.form.get('body'),request.form.get('author'),authRes.userID)
             if aPost.id!='':
                 return render_template('success.html')
