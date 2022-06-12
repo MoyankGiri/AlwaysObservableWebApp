@@ -20,6 +20,13 @@ import jwt
 from cryptography.hazmat.primitives import serialization
 import os
 key = "secret"
+
+from error_middlewear import count_error
+import prometheus_client
+from py_grpc_prometheus.prometheus_server_interceptor import PromServerInterceptor
+
+
+
 class userServiceServicer(user_grpc.userServiceServicer):
     def __init__(self) -> None:
         super().__init__()
@@ -49,6 +56,7 @@ class userServiceServicer(user_grpc.userServiceServicer):
             #search if user already exists
             res = self.collection.find_one({'username':username})
             print(f'Found in db: {res}')
+            count_error('POST','createAccount','Account Exists')
             if res:
                 temp = user_pb2.isSuccess(
                     success=False,
@@ -78,6 +86,7 @@ class userServiceServicer(user_grpc.userServiceServicer):
                     )
         except Exception as e:
             print(e)
+            count_error('POST','create_Account','password decrypting error')
             return user_pb2.isSuccess(
                 success=0,
                 msg = f'internal server error'
@@ -92,12 +101,12 @@ class userServiceServicer(user_grpc.userServiceServicer):
 
         if not row:
             #create account
+            count_error('POST','login','incorrect username or password')
             return user_pb2.session(
                 success = 0,
                 msg = "no account in db,redirecting to signup page...",
                 token='',
-                timeLimit='',
-                userID = ""
+                timeLimit=''
             )
         else:
             #username found in db,check if password matches
@@ -124,6 +133,8 @@ class userServiceServicer(user_grpc.userServiceServicer):
                 except Exception as e:
                     print("Failed while decoding!!")
                     print(e)
+                    count_error('POST','login','jwt decoding error')
+                    print("************ERROR COUNTED*****************")
                     return user_pb2.session(
                         success = 0,
                         msg = "Invalid username or password!Try again!",
@@ -145,13 +156,16 @@ class userServiceServicer(user_grpc.userServiceServicer):
                 raise Exception("Failed to decode :(")
         except Exception as e:
             print(e)
+            count_error('POST','auth_token','autheorization token generation error')
             return user_pb2.isSuccess(success=0,msg="Unable to authorized",userID="") 
 
 def serve():
-    server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
+    server = grpc.server(futures.ThreadPoolExecutor(max_workers=10),interceptors=(PromServerInterceptor(),))
     user_grpc.add_userServiceServicer_to_server(
         userServiceServicer(),server
     )
+    prometheus_client.start_http_server(7299) 
+
     server.add_insecure_port('[::]:50056')
     server.start()
     server.wait_for_termination()
