@@ -7,7 +7,9 @@ importlib-metadata
 itsdangerous
 Jinja2
 MarkupSafe
+prometheus_client
 protobuf
+py_grpc_prometheus
 pymongo
 six
 Werkzeug
