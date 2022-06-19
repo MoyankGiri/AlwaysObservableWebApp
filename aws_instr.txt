@@ -1,0 +1,24 @@
+>Create AWS EC2 Instance
+https://www.youtube.com/watch?v=FVNBdylX5po
+
+>login to aws cli 
+ssh -i hpctymoyankaws.pem ec2-user@<public-ipv4-addr>
+
+>get docker inside aws ec2 Instance
+sudo yum update -y
+sudo amazon-linux-extras install docker
+sudo yum install docker
+
+>start docker service
+sudo service docker start
+
+>check docker running
+docker info
+
+> Create docker-compose.yml file and copy contents from docker-compose_aws.yml present on repo
+
+> run docker-compose
+docker-compose up
+
+> access app in web browser
+http:public-ipv4-addr/createAccount

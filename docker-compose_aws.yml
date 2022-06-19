@@ -1,0 +1,87 @@
+# can now use docker compose in root folder
+version: '3'
+services:
+  app:
+    image: pes1ug19cs280/hpcty:apigateway
+    networks:
+      - AlwaysObservableApplication
+    command: python3 -u app.py
+    ports:
+      - "80:5000"
+    environment:
+      - DB=mongodb://mongodb:27017
+      - CommentMicroService=commentMicroservice
+      - PostMicroService=postMicroservice
+      - AuthMicroService=authMicroservice
+      
+  Commentmongodb:
+    image: mongo:latest
+    container_name: CommentMongoContainer
+    hostname: MongoDataBase
+    networks:
+      - AlwaysObservableApplication
+    environment:
+      - MONGO_DATA_DIR=/usr/data/commdb
+      - MONGO_LOG_DIR=/dev/null
+    ports:
+      - 27018:27018
+    command: mongod --logpath=/dev/null
+  
+  commentMicroservice:
+    image: pes1ug19cs280/hpcty:commentmicroservice
+    networks:
+      - AlwaysObservableApplication
+    command: python3 -u comment_server.py
+    ports:
+      - "5051:5051"
+    environment:
+      - DB=Commentmongodb
+      
+  postMicroservice:
+    image: pes1ug19cs280/hpcty:postmicroservice
+    networks:
+      - AlwaysObservableApplication
+    command: python3 -u post_server.py
+    ports:
+      - "50051:50051"
+    environment:
+      - DB=Postmongodb
+
+  Postmongodb:
+    image: mongo:latest
+    container_name: PostMongoContainer
+    hostname: MongoDataBase
+    networks:
+      - AlwaysObservableApplication
+    environment:
+      - MONGO_DATA_DIR=/usr/data/postdb
+      - MONGO_LOG_DIR=/dev/null
+    ports:
+      - 27019:27019
+    command: mongod --logpath=/dev/null
+
+
+  authMicroservice:
+    image: pes1ug19cs280/hpcty:authmicroservice
+    networks:
+      - AlwaysObservableApplication
+    command: python3 -u auth_server.py
+    ports:
+      - "50056:50056"
+    environment:
+      - DB=Authmongodb
+
+  Authmongodb:
+    image: mongo:latest
+    container_name: AuthMongoContainer
+    hostname: MongoDataBase
+    networks:
+      - AlwaysObservableApplication
+    environment:
+      - MONGO_DATA_DIR=/usr/data/authdb
+      - MONGO_LOG_DIR=/dev/null
+    ports:
+      - 27017:27017
+    command: mongod --logpath=/dev/null
+networks:
+      AlwaysObservableApplication:
