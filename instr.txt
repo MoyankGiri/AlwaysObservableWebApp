@@ -49,3 +49,7 @@ integrate with kubernetes
 3.View its status @: ❯ sudo systemctl status grafana-server
 4.it would be running in port 3000
 username,password=admin,admin
+
+//to setup alert-manager
+1.go to alert manager folder
+2.run ./alertmanager
