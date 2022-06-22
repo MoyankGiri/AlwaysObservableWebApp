@@ -20,7 +20,7 @@ import jwt
 from cryptography.hazmat.primitives import serialization
 key = "secret"
 
-from error_middlewear import count_error
+from app.helpers.error_middlewear import count_error
 import prometheus_client
 from py_grpc_prometheus.prometheus_server_interceptor import PromServerInterceptor
 
@@ -145,7 +145,10 @@ class userServiceServicer(user_grpc.userServiceServicer):
             return user_pb2.isSuccess(success=0,msg="Unable to authorized",userID="") 
 
 def serve():
+
+    #grpc interceptor
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10),interceptors=(PromServerInterceptor(),))
+
     user_grpc.add_userServiceServicer_to_server(
         userServiceServicer(),server
     )

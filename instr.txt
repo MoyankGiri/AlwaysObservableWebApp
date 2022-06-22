@@ -53,3 +53,4 @@ username,password=admin,admin
 //to setup alert-manager
 1.go to alert manager folder
 2.run ./alertmanager
+3.goto localhost:9093

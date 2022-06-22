@@ -5,9 +5,11 @@ from concurrent import futures
 from multiprocessing.sharedctypes import Value
 import re
 from time import strftime, strptime
+
 import grpc
 import prometheus_client
-from error_middlewear import count_error
+from app.helpers.error_middlewear import count_error
+from py_grpc_prometheus.prometheus_server_interceptor import PromServerInterceptor
 
 import post_pb2
 import post_pb2_grpc as post_grpc
@@ -225,7 +227,10 @@ class postServiceServicer(post_grpc.postServiceServicer):
                     )
 
 def serve():
-    server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
+
+    #grpc interceptor
+    server = grpc.server(futures.ThreadPoolExecutor(max_workers=10),interceptors=(PromServerInterceptor()))
+
     post_grpc.add_postServiceServicer_to_server(
         postServiceServicer(),server
     )
