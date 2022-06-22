@@ -46,5 +46,6 @@ integrate with kubernetes
 //to start graphana
 1.go to /tmp
 2.type sudo systemctl start grafana-server to start graphana server
-3.it would be running in port 3000
+3.View its status @: ❯ sudo systemctl status grafana-server
+4.it would be running in port 3000
 username,password=admin,admin
