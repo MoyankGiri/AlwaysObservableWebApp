@@ -81,6 +81,7 @@ def stop_timer(response):
         'always_observable_aws',
         request.path
     ).observe(elapsed_time)
+
     return response
 
 def setup_metrics(app):

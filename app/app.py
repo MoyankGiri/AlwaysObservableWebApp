@@ -1,8 +1,10 @@
 import os
+from random import randint
 from flask import Response, flash, jsonify, make_response, render_template_string, request
 import grpc
 from prometheus_client import start_http_server
 from py_grpc_prometheus.prometheus_client_interceptor import PromClientInterceptor
+import time
 
 DOCKER = False
 debugFlag = 1
@@ -49,6 +51,8 @@ import prometheus_client
 
 from middlewear import setup_metrics
 from error_middlewear import count_error
+from other_middlewears import measure_blog_latency
+
 setup_metrics(app)
 #****************Prometheus Ends*****************************
 
@@ -428,9 +432,20 @@ def deleteBlog():
 @app.route("/readOne",methods=['GET'])
 def readOne():
     if request.method=='GET':
+        #start timer to measure blogRead latency
+        start = time.time()
+
         aPost = apic.read_one(request.args.get('blogid'))
         res = appclient.readComments(request.args.get('blogid'))
         print("Retrieved a single blog: ",aPost)
+
+        #end time when blog is read
+        time.sleep(randint(1,3))
+        end = time.time()
+        #update the time taken
+        measure_blog_latency(end-start,request.args.get('blogid'),aPost.title)
+        print(f"The blog {request.args.get('blogid')} took: ",end-start,"to load!")
+
         if aPost:
             return render_template('aPost.html',post=aPost,items=list(res))
         else:
