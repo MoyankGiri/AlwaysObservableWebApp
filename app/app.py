@@ -2,7 +2,6 @@ from flask import Response, flash, make_response, request
 import grpc
 
 import sys
-from error_middlewear import count_error
 sys.path.insert(0,'/home/chandradhar/Projects/CTY/AlwaysObservableWebApp/microservices/auth_svc/src')
 sys.path.insert(0,'/home/chandradhar/Projects/CTY/AlwaysObservableWebApp/microservices/post_svc/src')
 import user_pb2_grpc,user_pb2
@@ -19,7 +18,10 @@ users_client_metrics = 8069
 #Prometheus client will send the metrics to the server
 #****************Prometheus*****************************
 import prometheus_client
-from helpers.middlewear import setup_metrics
+sys.path.append('/home/chandradhar/Projects/CTY/AlwaysObservableWebApp/helpers')
+
+from middlewear import setup_metrics
+from error_middlewear import count_error
 setup_metrics(app)
 #****************Prometheus Ends*****************************
 
@@ -28,18 +30,14 @@ class apiClient:
     def __init__(self) -> None:
         #good practice to reuse channels and stubs across multiple connections
 
-        '''
-        Have a look at this?
-        This looks crazy and messy!
-        '''
-        #create an interceptor for the post server client
+        #create an interceptor for posts client-stub
         post_channel = grpc.intercept_channel(
             grpc.insecure_channel('localhost:50051'),
             grpc_interceptor()
         )
         prometheus_client.start_http_server(8011)
 
-
+        #users client-stub
         user_channel = grpc.insecure_channel('localhost:50056')
 
 

@@ -8,7 +8,11 @@ from time import strftime, strptime
 
 import grpc
 import prometheus_client
-from app.helpers.error_middlewear import count_error
+
+import sys
+sys.path.append('/home/chandradhar/Projects/CTY/AlwaysObservableWebApp/helpers')
+from error_middlewear import count_error
+
 from py_grpc_prometheus.prometheus_server_interceptor import PromServerInterceptor
 
 import post_pb2
@@ -229,11 +233,12 @@ class postServiceServicer(post_grpc.postServiceServicer):
 def serve():
 
     #grpc interceptor
-    server = grpc.server(futures.ThreadPoolExecutor(max_workers=10),interceptors=(PromServerInterceptor()))
+    server = grpc.server(futures.ThreadPoolExecutor(max_workers=10),interceptors=(PromServerInterceptor(),))
 
     post_grpc.add_postServiceServicer_to_server(
         postServiceServicer(),server
     )
+
     server.add_insecure_port('[::]:50051')
     server.start()
     server.wait_for_termination()

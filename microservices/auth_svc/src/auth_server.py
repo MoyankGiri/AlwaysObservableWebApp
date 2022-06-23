@@ -20,7 +20,10 @@ import jwt
 from cryptography.hazmat.primitives import serialization
 key = "secret"
 
-from app.helpers.error_middlewear import count_error
+import sys
+sys.path.append('/home/chandradhar/Projects/CTY/AlwaysObservableWebApp/helpers')
+from error_middlewear import count_error
+
 import prometheus_client
 from py_grpc_prometheus.prometheus_server_interceptor import PromServerInterceptor
 
