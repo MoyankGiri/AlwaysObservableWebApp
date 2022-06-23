@@ -4,7 +4,7 @@ import grpc
 from prometheus_client import start_http_server
 from py_grpc_prometheus.prometheus_client_interceptor import PromClientInterceptor
 
-DOCKER = True
+DOCKER = False
 debugFlag = 1
 
 import sys
@@ -13,12 +13,12 @@ if DOCKER:
     sys.path.insert(1,'/webapp/microservices/post_svc/src')
     sys.path.insert(1,'/webapp/microservices/auth_svc/src')
     sys.path.insert(1,'/webapp/microservices/comments_svc/src')
-    sys.path.append(1,'/webapp/helpers')
+    sys.path.insert(1,'/webapp/helpers')
 else:
     sys.path.insert(0,'/home/chandradhar/Projects/CTY/AlwaysObservableWebApp/microservices/auth_svc/src')
     sys.path.insert(0,'/home/chandradhar/Projects/CTY/AlwaysObservableWebApp/microservices/post_svc/src')
     sys.path.insert(0,'/home/chandradhar/Projects/CTY/AlwaysObservableWebApp/microservices/comments_svc/src')
-    sys.path.append(0,'/home/chandradhar/Projects/CTY/AlwaysObservableWebApp/helpers')
+    sys.path.insert(0,'/home/chandradhar/Projects/CTY/AlwaysObservableWebApp/helpers')
 
 import user_pb2_grpc,user_pb2
 import post_pb2_grpc,post_pb2
@@ -223,7 +223,7 @@ class appClient:
     def __init__(self) -> None:
         print(commentMicroServiceOSENV,file=sys.stderr)
         #commentChannel = grpc.intercept_channel(grpc.insecure_channel(f"{commentMicroServiceOSENV}:5051"),PromClientInterceptor())
-        commentChannel = grpc.intercept_channel(grpc.insecure_channel(f"{commentMicroServiceOSENV}:5051"),PromClientInterceptor())
+        commentChannel = grpc.intercept_channel(grpc.insecure_channel(f"{commentMicroServiceOSENV}:5051"))
         if debugFlag: print(f"app.py: Comment Channel {commentChannel}",file=sys.stderr)
         self.comment_stub = comments_pb2_grpc.commentServiceStub(commentChannel)
         #start_http_server(5052) # client metrics is located at http://localhost:5052
@@ -469,5 +469,5 @@ def createComment():
         
 
 if __name__ == '__main__':
-    app.debug = True
+    app.debug = False
     app.run(host = '0.0.0.0',port=5000)
