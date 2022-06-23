@@ -9,6 +9,8 @@ from multiprocessing import Process
 MAX = 100
 TIME = 3
 
+login_token = None
+
 def setInterval(sec,func,args):
     e = threading.Event()
 
@@ -32,7 +34,8 @@ def make_get_request(url,randomization_config,count=0,params = None):
 
 def make_post_request(url,count=0):
     print(f"req made to {url} {count} number of times")
-    requests.post(url,{'username':'qwdqwdqwd', 'password':'3123wdfwef'})
+    res = requests.post(url,{'username':'qwdqwdqwd', 'password':'3123wdfwef'})
+    print("Response of login",res)
 
     if count < MAX:
         setInterval(TIME,make_post_request(url,count+1))

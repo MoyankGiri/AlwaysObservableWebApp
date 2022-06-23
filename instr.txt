@@ -86,5 +86,11 @@ integrate with kubernetes
 //to start graphana
 1.go to /tmp
 2.type sudo systemctl start grafana-server to start graphana server
-3.it would be running in port 3000
+3.View its status @: ❯ sudo systemctl status grafana-server
+4.it would be running in port 3000
 username,password=admin,admin
+
+//to setup alert-manager
+1.go to alert manager folder
+2.run ./alertmanager
+3.goto localhost:9093

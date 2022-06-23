@@ -93,7 +93,6 @@ from datetime import date, datetime, timedelta
 import os
 
 from concurrent import futures
-from time import strptime
 import grpc
 
 import comments_pb2
@@ -102,6 +101,8 @@ import comments_pb2_grpc
 import pymongo
 from pymongo.collection import ReturnDocument
 from bson.objectid import ObjectId
+from prometheus_client import start_http_server
+from py_grpc_prometheus.prometheus_server_interceptor import PromServerInterceptor
 
 class commentServiceServicer(comments_pb2_grpc.commentServiceServicer):
 
@@ -113,7 +114,6 @@ class commentServiceServicer(comments_pb2_grpc.commentServiceServicer):
 
     def createComment(self,req,ctx):
 
-        self.makeConnection()
         ret = None
         try:
             
@@ -140,21 +140,36 @@ class commentServiceServicer(comments_pb2_grpc.commentServiceServicer):
             print(f"[ERROR]: {e}")
         
         finally:
-            self.conn.close()
             return ret
 
 
     def readComments(self, request, context):
-        self.makeConnection()
-        allComments = self.collection.find({})
+
+        allComments = comments_pb2.CommentItemsList()
+        print(f"comment_server.py: readComments (1): {request.blogid}")
+        Comments = self.collection.find({"parentPost":request.blogid})
+        for comment in Comments:
+            allComments.comments.append(comments_pb2.aComment(title = comment["title"],body = comment["body"],author = comment["author"],parentPost = comment["parentPost"],parentComment = comment["parentComment"],userID = comment["userID"]))
+
+        return allComments
+    
+
+    def GetCreatedComment(self, request, context):
+
+        createdComment = (self.collection.find({"_id":ObjectId(request.commentID)}))[0]
+        return comments_pb2.commentItem(id = request.commentID,title = createdComment["title"],body = createdComment["body"],author = createdComment["author"],parentPost = createdComment["parentPost"],parentComment = createdComment["parentComment"],userID = createdComment["userID"])
+
 
 
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
+    #server = grpc.server(futures.ThreadPoolExecutor(max_workers=10),interceptors=(PromServerInterceptor(enable_handling_time_histogram=True, skip_exceptions=True),))
     comments_pb2_grpc.add_commentServiceServicer_to_server(
         commentServiceServicer(),server
     )
-    server.add_insecure_port('[::]:50051')
+    print("Server is Running")
+    server.add_insecure_port('[::]:5051')
+    #start_http_server(5053) # server metrics is located at http://localhost:5053
     server.start()
     server.wait_for_termination()
 

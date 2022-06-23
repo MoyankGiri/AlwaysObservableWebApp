@@ -21,7 +21,10 @@ from cryptography.hazmat.primitives import serialization
 import os
 key = "secret"
 
+import sys
+sys.path.append('/home/chandradhar/Projects/CTY/AlwaysObservableWebApp/helpers')
 from error_middlewear import count_error
+
 import prometheus_client
 from py_grpc_prometheus.prometheus_server_interceptor import PromServerInterceptor
 
@@ -160,7 +163,10 @@ class userServiceServicer(user_grpc.userServiceServicer):
             return user_pb2.isSuccess(success=0,msg="Unable to authorized",userID="") 
 
 def serve():
+
+    #grpc interceptor
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10),interceptors=(PromServerInterceptor(),))
+
     user_grpc.add_userServiceServicer_to_server(
         userServiceServicer(),server
     )

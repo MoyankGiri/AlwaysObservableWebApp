@@ -8,16 +8,17 @@ DOCKER = True
 debugFlag = 1
 
 import sys
-from error_middlewear import count_error
 
 if DOCKER:
     sys.path.insert(1,'/webapp/microservices/post_svc/src')
     sys.path.insert(1,'/webapp/microservices/auth_svc/src')
     sys.path.insert(1,'/webapp/microservices/comments_svc/src')
+    sys.path.append(1,'/webapp/helpers')
 else:
     sys.path.insert(0,'/home/chandradhar/Projects/CTY/AlwaysObservableWebApp/microservices/auth_svc/src')
     sys.path.insert(0,'/home/chandradhar/Projects/CTY/AlwaysObservableWebApp/microservices/post_svc/src')
     sys.path.insert(0,'/home/chandradhar/Projects/CTY/AlwaysObservableWebApp/microservices/comments_svc/src')
+    sys.path.append(0,'/home/chandradhar/Projects/CTY/AlwaysObservableWebApp/helpers')
 
 import user_pb2_grpc,user_pb2
 import post_pb2_grpc,post_pb2
@@ -45,7 +46,9 @@ posts_client_metrics = 8000
 users_client_metrics = 8069
 
 import prometheus_client
-from helpers.middlewear import setup_metrics
+
+from middlewear import setup_metrics
+from error_middlewear import count_error
 setup_metrics(app)
 #****************Prometheus Ends*****************************
 
@@ -53,13 +56,26 @@ setup_metrics(app)
 class apiClient:
     def __init__(self) -> None:
         #good practice to reuse channels and stubs across multiple connections
+
         if DOCKER:
-            post_channel = grpc.insecure_channel("postmicroservice:50051")
+            #create an interceptor for posts client-stub
+            post_channel = grpc.insecure_channel(
+                grpc.insecure_channel("postmicroservice:50051"),
+                grpc_interceptor()
+            )
+            prometheus_client.start_http_server(8011)
+
             user_channel = grpc.insecure_channel("authmicroservice:50056")
             print(f"Post Channel {post_channel}")
             print(f"User Channel {user_channel}")
         else:
-            post_channel = grpc.insecure_channel("localhost:50051")
+            #create an interceptor for posts client-stub
+            post_channel = grpc.intercept_channel(
+                grpc.insecure_channel('localhost:50051'),
+                grpc_interceptor()
+            )
+            prometheus_client.start_http_server(8011)
+
             user_channel = grpc.insecure_channel("localhost:50056")
             print(f"Post Channel {post_channel}")
             print(f"User Channel {user_channel}")
