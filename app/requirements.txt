@@ -13,3 +13,4 @@ py-grpc-prometheus
 six
 Werkzeug
 zipp
+prometheus_client

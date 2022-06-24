@@ -22,7 +22,13 @@ import os
 key = "secret"
 
 import sys
-sys.path.append('/home/chandradhar/Projects/CTY/AlwaysObservableWebApp/helpers')
+DOCKER = True
+
+if DOCKER:
+    sys.path.insert(1,'/webapp/helpers')
+else:
+    sys.path.insert(1,'/home/chandradhar/Projects/CTY/AlwaysObservableWebApp/helpers')
+
 from error_middlewear import count_error
 
 import prometheus_client
