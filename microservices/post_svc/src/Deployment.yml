@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: postmicroservice
+    labels:
+        app: postmicroservice
+spec:
+    replicas: 1
+    selector:
+        matchLabels:
+            app: postmicroservice
+    template:
+        metadata:
+            labels:
+                app: postmicroservice
+        spec:
+            containers:
+                - name: postmicroservice
+                  image: chandradharrao/cty_dev_repo:postmicroservice
+                  env:
+                    - name: DB
+                      value: postmongodb
+                  ports:
+                    - containerPort: 50051
+                  imagePullPolicy: Always
+                  resources:
+                    limits:
+                      memory: 512Mi
+                      cpu: "1"
+                    requests:
+                      memory: 256Mi
+                      cpu: "0.2"
+---
+apiVersion: v1
+kind: Service
+metadata:
+    name: postmicroservice
+spec:
+    selector:
+        app: postmicroservice
+    ports:
+        - protocol: TCP
+          port: 50051
+          targetPort: 50051

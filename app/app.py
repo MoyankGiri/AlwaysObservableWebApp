@@ -229,7 +229,7 @@ class appClient:
     def __init__(self) -> None:
         print(commentMicroServiceOSENV,file=sys.stderr)
         #commentChannel = grpc.intercept_channel(grpc.insecure_channel(f"{commentMicroServiceOSENV}:5051"),PromClientInterceptor())
-        commentChannel = grpc.intercept_channel(grpc.insecure_channel(f"{commentMicroServiceOSENV}:5051"))
+        commentChannel = grpc.insecure_channel(f"{commentMicroServiceOSENV}:5051")
         if debugFlag: print(f"app.py: Comment Channel {commentChannel}",file=sys.stderr)
         self.comment_stub = comments_pb2_grpc.commentServiceStub(commentChannel)
         #start_http_server(5052) # client metrics is located at http://localhost:5052
@@ -279,10 +279,10 @@ apic = apiClient()
 #**put this to the apiClient class itself please**
 appclient = appClient()
 
-@app.route("/metrics")
-def metrics():
-    #create and send response to the prometheus querying server
-    return Response(prometheus_client.generate_latest(),mimetype=str('text/plain; version=0.0.4; charset=utf-8'))
+# @app.route("/metrics")
+# def metrics():
+#     #create and send response to the prometheus querying server
+#     return Response(prometheus_client.generate_latest(),mimetype=str('text/plain; version=0.0.4; charset=utf-8'))
 
 @app.route("/",methods=['GET'])
 def landing():
