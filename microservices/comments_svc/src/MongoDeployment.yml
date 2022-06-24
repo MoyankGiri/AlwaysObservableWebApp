@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: commentmongodb
+    labels:
+        app: commentmongodb
+spec:
+    replicas: 1
+    selector:
+        matchLabels:
+            app: commentmongodb
+    template:
+        metadata:
+            labels:
+                app: commentmongodb
+        spec:
+            containers:
+                - name: commentmongocontainer
+                  image: mongo:latest
+                  env:
+                    - name: MONGO_DATA_DIR
+                      value: /usr/data/commdb
+                    - name: MONGO_LOG_DIR
+                      value: /dev/null
+                  ports:
+                    - containerPort: 27018
+                  imagePullPolicy: Always
+                  resources:
+                    limits:
+                      memory: 512Mi
+                      cpu: "1"
+                    requests:
+                      memory: 256Mi
+                      cpu: "0.2"
+---
+apiVersion: v1
+kind: Service
+metadata:
+    name: commentmongodb
+spec:
+    selector:
+        app: commentmongodb
+    ports:
+        - protocol: TCP
+          port: 27018
+          targetPort: 27018

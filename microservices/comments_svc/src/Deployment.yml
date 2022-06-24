@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: commentmicroservice
+    labels:
+        app: commentmicroservice
+spec:
+    replicas: 1
+    selector:
+        matchLabels:
+            app: commentmicroservice
+    template:
+        metadata:
+            labels:
+                app: commentmicroservice
+        spec:
+            containers:
+                - name: commentmicroservice
+                  image: chandradharrao/cty_dev_repo:commentmicroservice
+                  env:
+                    - name: DB
+                      value: commentmongodb
+                  ports:
+                    - containerPort: 5051
+                  imagePullPolicy: Always
+                  resources:
+                    limits:
+                      memory: 512Mi
+                      cpu: "1"
+                    requests:
+                      memory: 256Mi
+                      cpu: "0.2"
+---
+apiVersion: v1
+kind: Service
+metadata:
+    name: commentmicroservice
+spec:
+    selector:
+        app: commentmicroservice
+    ports:
+        - protocol: TCP
+          port: 5051
+          targetPort: 5051
