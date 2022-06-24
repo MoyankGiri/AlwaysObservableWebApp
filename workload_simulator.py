@@ -2,6 +2,7 @@
 Script to make POST and GET requests once in every 15 seconds
 '''
 from random import *
+from turtle import title
 import requests
 import threading
 from multiprocessing import Process
@@ -35,10 +36,20 @@ def make_get_request(url,randomization_config,count=0,params = None):
 def make_post_request(url,count=0):
     print(f"req made to {url} {count} number of times")
     res = requests.post(url,{'username':'qwdqwdqwd', 'password':'3123wdfwef'})
-    print("Response of login",res)
+    print("Response of login",res) #use this and set token
 
     if count < MAX:
         setInterval(TIME,make_post_request(url,count+1))
+    else:
+        return
+
+def create_blog(url,token,count):
+    cookies = {'token':token}
+    res = requests.post(url,data={'title':f'Blog {count}','author':'random_author','body':"body of form..dqwdqwddqwdjwqdjojiodwqjiowdjiowqd"},cookies=cookies)
+    print("")
+
+    if count < MAX:
+        setInterval(TIME,create_blog(url,token,count+1))
     else:
         return
 

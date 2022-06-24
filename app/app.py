@@ -6,6 +6,7 @@ from prometheus_client import start_http_server
 from py_grpc_prometheus.prometheus_client_interceptor import PromClientInterceptor
 import time
 
+
 DOCKER = False
 debugFlag = 1
 
@@ -52,6 +53,7 @@ import prometheus_client
 from middlewear import setup_metrics
 from error_middlewear import count_error
 from other_middlewears import measure_blog_latency
+from other_middlewears import increment_blog_comments
 
 setup_metrics(app)
 #****************Prometheus Ends*****************************
@@ -440,7 +442,7 @@ def readOne():
         print("Retrieved a single blog: ",aPost)
 
         #end time when blog is read
-        time.sleep(randint(1,3))
+        # time.sleep(randint(1,3))
         end = time.time()
         #update the time taken
         measure_blog_latency(end-start,request.args.get('blogid'),aPost.title)
@@ -467,6 +469,10 @@ def createComment():
                 print("Calling here server",file=sys.stderr)
                 commentResponseReceived = appclient.create_comment(title,body,author,blogid,authRes.userID)
                 print(commentResponseReceived,file=sys.stderr)
+
+                #counter for comments on a particular blog
+                increment_blog_comments(blogid)
+
             except Exception as e:
                 print(f"[ERROR]: {e}")
             finally:

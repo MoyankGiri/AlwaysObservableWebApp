@@ -63,6 +63,7 @@ sudo lsof -i -P -n | grep <port_num>
 kill it
 sudo kill <process_id>
 
+todo:
 seperate out the serves and deployments into individual files
 for now set the replication factor to 1
 add all port numbers in .env file
@@ -73,6 +74,7 @@ generate alerts
 merge codebase
 debugg and analyse collected metrics
 integrate with kubernetes
+
 
 //prometheus
 1.if not already configured, at the file: /home/chandradhar/prometheus-2.34.0.linux-amd64/prometheus.yml, change the target to the webapplication url
