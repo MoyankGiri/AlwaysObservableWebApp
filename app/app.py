@@ -1,8 +1,8 @@
 import os
 from flask import Response, flash, jsonify, make_response, render_template_string, request
 import grpc
-from prometheus_client import start_http_server
-from py_grpc_prometheus.prometheus_client_interceptor import PromClientInterceptor
+# from prometheus_client import start_http_server
+# from py_grpc_prometheus.prometheus_client_interceptor import PromClientInterceptor
 
 DOCKER = False
 debugFlag = 1
@@ -38,9 +38,9 @@ app.secret_key = 'abc'
 
 #Prometheus client will send the metrics to the server
 #****************Prometheus*****************************
-import prometheus_client
-from helpers.middlewear import setup_metrics
-setup_metrics(app)
+# import prometheus_client
+# from helpers.middlewear import setup_metrics
+# setup_metrics(app)
 #****************Prometheus Ends*****************************
 
 #*********GRPC Client Code*******************************
@@ -199,7 +199,7 @@ class appClient:
     def __init__(self) -> None:
         print(commentMicroServiceOSENV,file=sys.stderr)
         #commentChannel = grpc.intercept_channel(grpc.insecure_channel(f"{commentMicroServiceOSENV}:5051"),PromClientInterceptor())
-        commentChannel = grpc.intercept_channel(grpc.insecure_channel(f"{commentMicroServiceOSENV}:5051"),PromClientInterceptor())
+        commentChannel = grpc.insecure_channel(f"{commentMicroServiceOSENV}:5051")
         if debugFlag: print(f"app.py: Comment Channel {commentChannel}",file=sys.stderr)
         self.comment_stub = comments_pb2_grpc.commentServiceStub(commentChannel)
         #start_http_server(5052) # client metrics is located at http://localhost:5052
@@ -249,10 +249,10 @@ apic = apiClient()
 #**put this to the apiClient class itself please**
 appclient = appClient()
 
-@app.route("/metrics")
-def metrics():
-    #create and send response to the prometheus querying server
-    return Response(prometheus_client.generate_latest(),mimetype=str('text/plain; version=0.0.4; charset=utf-8'))
+# @app.route("/metrics")
+# def metrics():
+#     #create and send response to the prometheus querying server
+#     return Response(prometheus_client.generate_latest(),mimetype=str('text/plain; version=0.0.4; charset=utf-8'))
 
 @app.route("/",methods=['GET'])
 def landing():
