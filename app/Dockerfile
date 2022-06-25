@@ -7,6 +7,7 @@ RUN python3 -m pip install --upgrade pip
 RUN python3 -m pip install --upgrade setuptools
 
 COPY . ./webapp
+COPY helpers/ /webapp/helpers/
 RUN pip3 install -r /webapp/app/requirements.txt
 EXPOSE 5000
 # RUN python3 /webapp/app/app.py
