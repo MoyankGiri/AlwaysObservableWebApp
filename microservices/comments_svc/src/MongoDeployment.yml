@@ -23,7 +23,7 @@ spec:
                     - name: MONGO_LOG_DIR
                       value: /dev/null
                   ports:
-                    - containerPort: 27018
+                    - containerPort: 27017
                   imagePullPolicy: Always
                   resources:
                     limits:
@@ -42,5 +42,5 @@ spec:
         app: commentmongodb
     ports:
         - protocol: TCP
-          port: 27018
-          targetPort: 27018
+          port: 27017
+          targetPort: 27017

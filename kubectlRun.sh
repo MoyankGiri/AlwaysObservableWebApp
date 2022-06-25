@@ -6,4 +6,8 @@ do
     kubectl apply -f $(pwd)/microservices/$msvc/src/MongoDeployment.yml
 done
 
-kubectl port-forward svc/apigateway 5000  
+while ! kubectl port-forward svc/apigateway 5000
+do
+    echo "\nWaiting for pod creation..."
+    sleep 10
+done
