@@ -16,7 +16,7 @@ spec:
         spec:
             containers:
                 - name: authmicroservice
-                  image: chandradharrao/cty_dev_repo:authmicroservice
+                  image: pes1ug19cs280/hpcty:authmicroservice
                   env:
                     - name: DB
                       value: authmongodb
