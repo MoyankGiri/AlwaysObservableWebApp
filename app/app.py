@@ -65,7 +65,7 @@ class apiClient:
 
         if DOCKER:
             #create an interceptor for posts client-stub
-            post_channel = grpc.insecure_channel(
+            post_channel = grpc.intercept_channel(
                 grpc.insecure_channel("postmicroservice:50051"),
                 grpc_interceptor()
             )
