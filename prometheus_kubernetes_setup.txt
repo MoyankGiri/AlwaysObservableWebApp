@@ -1,0 +1,76 @@
+#########################
+#      Resources 	#
+#########################
+
+How to setup?
+https://blog.container-solutions.com/prometheus-operator-beginners-guide
+
+How to expose prometheus_client.start_http_server?
+https://stackoverflow.com/questions/59656925/setting-up-prometheus-with-python-in-kubernetes-cluster
+
+#########################
+#      End	 	#
+#########################
+
+Why prometheus operator?
+Ans: it reduces theeffort of configuration, implementation and management of entire prometheus monitoring stack on k8 allowing dynamic update of resources
+
+Steps to setup:
+1.Deploy prometheus operator onto the cluster
+kubectl create -f https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/master/bundle.yaml
+
+2.verify crds
+kubectl get crds
+
+3.verify if operator was created
+kubectl get deploy
+
+4.verify if service has been created
+kubectl get service
+
+5.prom needs access to k8 apis to scrape targets. hence we need to give appropriate permissions to access the resources via clusterRoles.
+kubectl apply -f rbac.yaml
+
+6.check if role was created
+kubectl describe clusterrolebinding prometheus
+
+7.create prometheus pod
+kubectl apply -f prometheus.yaml
+
+8.check if it is running
+kubectl get prometheus
+
+9.check if service is running
+kubectl get services
+
+10.access prom ui by port forwarding
+kubectl port-forward svc/prometheus-operated 9090:9090
+
+11.prom operators use PodMonitors to identify pods to be scraped by prom.
+Hence PostPodMonitor.yaml uses a label to select which service to monitor and which metrics to scrape ie the label we use is app:postmicroservice since we want to scrape the app postmicroservice and since we have started_http_client @ port:6996, we use this port number
+
+kubectl apply -f PostPodMonitor.yaml
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

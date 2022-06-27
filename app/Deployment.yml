@@ -28,6 +28,7 @@ spec:
               value: authmicroserivice
           ports:
             - containerPort: 5000
+            - containerPort: 8011
           imagePullPolicy: Always
           resources:
             limits:

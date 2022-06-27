@@ -1,0 +1,15 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: postmicroservice
+  labels:
+    name: postmicroservice
+spec:
+  namespaceSelector:
+    matchNames:
+      - default
+  selector:
+    matchLabels:
+      app: postmicroservice
+  podMetricsEndpoints:
+  - targetPort: 6996

@@ -1,0 +1,15 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: authmicroservice
+  labels:
+    name: authmicroservice
+spec:
+  namespaceSelector:
+    matchNames:
+      - default
+  selector:
+    matchLabels:
+      app: authmicroservice
+  podMetricsEndpoints:
+  - targetPort: 7299

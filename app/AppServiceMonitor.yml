@@ -1,0 +1,15 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: apigateway
+  labels:
+    name: apigateway
+spec:
+  namespaceSelector:
+    matchNames:
+      - default
+  selector:
+    matchLabels:
+      app: apigateway
+  podMetricsEndpoints:
+  - targetPort: 8011

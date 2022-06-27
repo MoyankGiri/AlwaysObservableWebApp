@@ -22,6 +22,7 @@ spec:
                       value: postmongodb
                   ports:
                     - containerPort: 50051
+                    - containerPort: 6996
                   imagePullPolicy: Always
                   resources:
                     limits:

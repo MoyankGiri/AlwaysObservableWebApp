@@ -22,6 +22,7 @@ spec:
                       value: authmongodb
                   ports:
                     - containerPort: 50056
+                    - containerPort: 7299
                   imagePullPolicy: Always
                   resources:
                     limits:
