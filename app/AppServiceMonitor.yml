@@ -4,6 +4,7 @@ metadata:
   name: apigateway
   labels:
     name: apigateway
+    release: prometheus
 spec:
   namespaceSelector:
     matchNames:

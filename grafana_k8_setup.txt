@@ -1,0 +1,15 @@
+follow this guide:
+https://devopscube.com/setup-grafana-kubernetes/
+
+for the data surce, the format is:
+http://<prometheus_operated_svc_name>.<namespace>.svc:<port_num>
+
+start the pod
+./grafana_start.sh
+
+stop the pod
+->get the pod name with 'grafana' on it
+->run ./grafan_stop.sh
+
+portforward
+./grafana_port_forward.sh
