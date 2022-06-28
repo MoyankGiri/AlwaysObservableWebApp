@@ -10,6 +10,7 @@ MarkupSafe
 protobuf
 pymongo
 py-grpc-prometheus
+regex
 six
 Werkzeug
 zipp
