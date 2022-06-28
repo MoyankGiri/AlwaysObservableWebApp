@@ -1,6 +1,7 @@
 mongodb:
-  uri: "mongodb://authmongodb:27017"
+  uri: "mongodb://commentmongodb:27017,postmongodb:27017,authmongodb:27017"
 
 serviceMonitor:
+  enabled: true
   additionalLabels:
-    release: kind-prom
+    release: prometheus
