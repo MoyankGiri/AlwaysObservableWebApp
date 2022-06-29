@@ -10,7 +10,7 @@ from random import *
 import requests
 
 
-MAX = 50
+MAX = 55
 
 login_token = None
 login_creds = {'username':'777','password':'7'}
@@ -70,4 +70,12 @@ while count!=MAX:
     data = {"title":title,"body":body,"author":author,"blogID":blogid}
     requests.post(f"http://localhost:5000/createComment?blogid={blogid}",data=data,cookies=login_token)
     count+=1
+
+#edit random blogs
+count = 0
+while count!=MAX:
+    blogid = choice(blogs)
+    requests.get(f"http://localhost:5000/editBlog?blogid={blogid}",cookies=login_token)
+    count+=1
+
 print("Done with simulation!!")

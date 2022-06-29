@@ -60,6 +60,7 @@ from middlewear import setup_metrics
 from error_middlewear import count_error
 from other_middlewears import measure_blog_latency
 from other_middlewears import increment_blog_comments
+from other_middlewears import inc_blog_edits
 
 setup_metrics(app)
 #****************Prometheus Ends*****************************
@@ -419,6 +420,7 @@ def homepage():
 @app.route("/editBlog",methods=['GET','POST'])
 def updateBlog():
     authRes = apic.authorize_user(request.cookies.get("token"))
+
     if authRes.success:
         if request.method=='POST':
             try:
@@ -434,6 +436,8 @@ def updateBlog():
                 return render_template("failed.html")
         else:
             if request.method=='GET':
+                inc_blog_edits(request.args.get("blogid"))
+
                 #return the blog with the earlier data
                 aBlog = apic.read_one(request.args.get("blogid"))
                 print("Ablog:",aBlog)
