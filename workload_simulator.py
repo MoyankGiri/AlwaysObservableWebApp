@@ -97,14 +97,14 @@ def postToCreateComment(blogID,url = 'localhost:5000/createComment',MAX_COUNT = 
 
 randomization_config={'urls':['http://localhost:5000/login','http://localhost:5000/home','http://localhost:5000/readBlogs',],'bool':True}
 
-#p = Process(target=make_get_request,args=(None,randomization_config))
-#q = Process(target=make_get_request,args=('http://localhost:5000/readOne?blogid=62977be36b153f5b59a972ec',{'bool':False}))
-#r = Process(target=make_post_request,args=('http://localhost:5000/login'))
-#
-#p.start()
-#q.start()
-#r.start()
-#
-#p.join()
-#q.join()
-#r.join()
+p = Process(target=make_get_request,args=(None,randomization_config))
+q = Process(target=make_get_request,args=('http://localhost:5000/readOne?blogid=62977be36b153f5b59a972ec',{'bool':False}))
+r = Process(target=make_post_request,args=('http://localhost:5000/login'))
+
+p.start()
+q.start()
+r.start()
+
+p.join()
+q.join()
+r.join()
