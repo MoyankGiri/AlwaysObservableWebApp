@@ -93,6 +93,9 @@ integrate with kubernetes
 username,password=admin,admin
 
 //to setup alert-manager
+/*
+Link the alert.rules.yaml file with prometheus by providing its path since prometheus requires the path of rules file for firing the alert
+*/
 1.go to alert manager folder
 2.run ./alertmanager
 3.goto localhost:9093

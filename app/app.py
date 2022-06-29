@@ -1,3 +1,4 @@
+import json
 import os
 from random import randint
 from flask import Response, flash, jsonify, make_response, render_template_string, request
@@ -382,6 +383,20 @@ def readBlogs():
             return render_template("failed.html")
     else:
         return render_template("homepage.html")
+
+@app.route("/fetchBlogs",methods=['GET'])
+def fetchBlogs():
+    #read all blocks,no need to login
+    result = apic.read_all(7)
+    blogs = []
+    for post in list(result):
+        blogs.append((post.id))
+    if request.method=='GET':
+        if result:
+            result = {'data':blogs}
+            return Response(json.dumps(result),mimetype='application/json')
+        else:
+            return []
 
 @app.route("/home",methods=['GET'])
 def homepage():
