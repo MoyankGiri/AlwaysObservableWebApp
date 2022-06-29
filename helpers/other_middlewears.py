@@ -13,7 +13,7 @@ BLOG_LATENCY = Histogram(
 BLOG_COMMENTS = Counter(
     'blog_comment_counter',
     'blog with most comments',
-    ['app_name','blog_id','blog_name']
+    ['app_name','blog_id']
 )
 
 def measure_blog_latency(duration,blog_id,title):

@@ -7,7 +7,7 @@ from py_grpc_prometheus.prometheus_client_interceptor import PromClientIntercept
 import time
 
 
-DOCKER = True
+DOCKER = False
 debugFlag = 1
 
 import sys
@@ -18,10 +18,14 @@ if DOCKER:
     sys.path.insert(1,'/webapp/microservices/comments_svc/src')
     sys.path.insert(1,'/webapp/helpers')
 else:
-    sys.path.insert(0,'/home/chandradhar/Projects/CTY/AlwaysObservableWebApp/microservices/auth_svc/src')
-    sys.path.insert(0,'/home/chandradhar/Projects/CTY/AlwaysObservableWebApp/microservices/post_svc/src')
-    sys.path.insert(0,'/home/chandradhar/Projects/CTY/AlwaysObservableWebApp/microservices/comments_svc/src')
-    sys.path.insert(0,'/home/chandradhar/Projects/CTY/AlwaysObservableWebApp/helpers')
+    #sys.path.insert(0,'/home/chandradhar/Projects/CTY/AlwaysObservableWebApp/microservices/auth_svc/src')
+    #sys.path.insert(0,'/home/chandradhar/Projects/CTY/AlwaysObservableWebApp/microservices/post_svc/src')
+    #sys.path.insert(0,'/home/chandradhar/Projects/CTY/AlwaysObservableWebApp/microservices/comments_svc/src')
+    #sys.path.insert(0,'/home/chandradhar/Projects/CTY/AlwaysObservableWebApp/helpers')
+    sys.path.insert(0,'C:/Users/moyan/Desktop/HPCTY/AlwaysObservableWebApp/microservices/auth_svc/src')
+    sys.path.insert(0,'C:/Users/moyan/Desktop/HPCTY/AlwaysObservableWebApp/microservices/post_svc/src')
+    sys.path.insert(0,'C:/Users/moyan/Desktop/HPCTY/AlwaysObservableWebApp/microservices/comments_svc/src')
+    sys.path.insert(0,'C:/Users/moyan/Desktop/HPCTY/AlwaysObservableWebApp/helpers')
 
 import user_pb2_grpc,user_pb2
 import post_pb2_grpc,post_pb2
@@ -180,7 +184,7 @@ class apiClient:
         result = []
 
         try:
-            result = self.post_stub.fetchRecent(post_pb2.when(duration=t*24*60))
+            result = self.post_stub.fetchRecent(post_pb2.when(duration=100000))
             # print("All posts are:",result)
             return result.posts
 
@@ -227,13 +231,32 @@ class apiClient:
 class appClient:
 
     def __init__(self) -> None:
+<<<<<<< HEAD
+        if DOCKER:
+            print(commentMicroServiceOSENV,file=sys.stderr)
+            #commentChannel = grpc.intercept_channel(grpc.insecure_channel(f"{commentMicroServiceOSENV}:5051"),PromClientInterceptor())
+            commentChannel = grpc.insecure_channel(f"{commentMicroServiceOSENV}:5051")
+            if debugFlag: print(f"app.py: Comment Channel {commentChannel}",file=sys.stderr)
+            self.comment_stub = comments_pb2_grpc.commentServiceStub(commentChannel)
+            #start_http_server(5052) # client metrics is located at http://localhost:5052
+            if debugFlag: print(f"app.py: comment stub: {self.comment_stub}",file=sys.stderr)
+        else:
+            commentChannel = grpc.insecure_channel("localhost:5051")
+            self.comment_stub = comments_pb2_grpc.commentServiceStub(commentChannel)
+=======
         print(commentMicroServiceOSENV,file=sys.stderr)
         #commentChannel = grpc.intercept_channel(grpc.insecure_channel(f"{commentMicroServiceOSENV}:5051"),PromClientInterceptor())
-        commentChannel = grpc.insecure_channel(f"{commentMicroServiceOSENV}:5051")
+
+        if DOCKER:
+            commentChannel = grpc.insecure_channel(f"{commentMicroServiceOSENV}:5051")
+        else:
+             commentChannel = grpc.insecure_channel(f"localhost:5051")
+
         if debugFlag: print(f"app.py: Comment Channel {commentChannel}",file=sys.stderr)
         self.comment_stub = comments_pb2_grpc.commentServiceStub(commentChannel)
         #start_http_server(5052) # client metrics is located at http://localhost:5052
         if debugFlag: print(f"app.py: comment stub: {self.comment_stub}",file=sys.stderr)
+>>>>>>> ec538f3bb6e47647f6f983aae8137842a0383996
     
     def create_comment(self,title,body,author,parentpost,userid):
         newComment = None

@@ -4,3 +4,4 @@ db.txt
 *_pb2*.py
 __pycache__
 test.py
+*.json

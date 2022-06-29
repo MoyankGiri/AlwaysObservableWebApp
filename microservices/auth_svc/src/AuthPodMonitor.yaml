@@ -4,6 +4,7 @@ metadata:
   name: authmicroservice
   labels:
     name: authmicroservice
+    release: prometheus
 spec:
   namespaceSelector:
     matchNames:

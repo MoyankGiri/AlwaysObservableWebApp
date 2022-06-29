@@ -22,12 +22,13 @@ import os
 key = "secret"
 
 import sys
-DOCKER = True
+DOCKER = False
 
 if DOCKER:
     sys.path.insert(1,'/webapp/helpers')
 else:
-    sys.path.insert(1,'/home/chandradhar/Projects/CTY/AlwaysObservableWebApp/helpers')
+    #sys.path.insert(1,'/home/chandradhar/Projects/CTY/AlwaysObservableWebApp/helpers')
+    sys.path.insert(0,'C:/Users/moyan/Desktop/HPCTY/AlwaysObservableWebApp/helpers')
 
 from error_middlewear import count_error
 

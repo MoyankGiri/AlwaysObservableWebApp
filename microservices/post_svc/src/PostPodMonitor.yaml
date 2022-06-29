@@ -4,6 +4,7 @@ metadata:
   name: postmicroservice
   labels:
     name: postmicroservice
+    release: prometheus
 spec:
   namespaceSelector:
     matchNames:
