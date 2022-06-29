@@ -10,7 +10,7 @@ from random import *
 import requests
 
 
-MAX = 5
+MAX = 50
 
 login_token = None
 login_creds = {'username':'777','password':'7'}
@@ -30,6 +30,17 @@ def create_blog(url,token,title,author,content):
 #login and create account
 create_account('http://localhost:5000/createAccount')
 login_token = login('http://localhost:5000/login')
+
+#spam login and create account server to generate errors
+count = 0
+while count!=MAX:
+    create_account('http://localhost:5000/createAccount')
+    login('http://localhost:5000/login')
+    create_blog('http://localhost:5000/createBlog',{'token':'token'},'error','error','error')
+    count+=1
+
+# cont = int(input())
+# if cont!=1: exit()
 
 #create blogs
 with open("data.json") as jfile:

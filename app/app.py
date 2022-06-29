@@ -1,3 +1,4 @@
+from datetime import datetime
 import json
 import os
 from random import randint
@@ -216,14 +217,15 @@ class apiClient:
         updatedPost = {}
         try:
             updatedPost = self.post_stub.updatePost((post_pb2.aPost(
-                id=postDict['id'],
+                id=postDict['blogid'],
                 title=postDict['title'],
                 body=postDict['body'],
                 author=postDict['author'],
-                creationDate=postDict['creationDate'],
-                lastUpdatedDate=postDict['lastUpdatedDate'],
+                creationDate=str(datetime.now()),
+                lastUpdatedDate=str(datetime.now()),
                 userID=userid
             )))
+            print("Updated Post!!!!")
             return updatedPost
         except Exception as e:
             print(f"[Error]",e)
@@ -421,7 +423,11 @@ def updateBlog():
         if request.method=='POST':
             try:
                 print("User Authorized,Updating the blog content....")
-                updatedBlog = apic.edit_blog(request.args.get("blogid"),authRes.userID,request.form.to_dict())
+                print()
+
+                print("Recieved blogid",request.form.to_dict())
+                res_data = request.form.to_dict()
+                updatedBlog = apic.edit_blog(res_data["blogid"],authRes.userID,request.form.to_dict())
                 print("Blog article updated!",updatedBlog)
                 return render_template("success.html")
             except Exception as e:
@@ -430,6 +436,7 @@ def updateBlog():
             if request.method=='GET':
                 #return the blog with the earlier data
                 aBlog = apic.read_one(request.args.get("blogid"))
+                print("Ablog:",aBlog)
                 return render_template('edit_blog.html',article=aBlog)
 
 @app.route("/deleteBlog",methods=['GET'])

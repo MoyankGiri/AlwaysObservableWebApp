@@ -13,6 +13,11 @@
   
   <form action="/editBlog" method="post">
     <div class="form-group row">
+      <label for="blogid"></label>
+      <div>
+        <input type="hidden" name="blogid" id="blogid" value="{{article.id}}">
+      </div>
+      
       <label for="title" class="col-4 col-form-label">{{article.title}}</label> 
       <div class="col-8">
         <input id="title" name="title" placeholder="title" type="text" required="required" class="form-control" spellcheck="false" data-ms-editor="true">
