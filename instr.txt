@@ -96,3 +96,9 @@ username,password=admin,admin
 1.go to alert manager folder
 2.run ./alertmanager
 3.goto localhost:9093
+
+
+//how to run kube-prometheus
+./kubectlRun.sh => creates various pods,podMonitors etc
+./prom_operator.sh => creates the prometheus,alertManager and grafana instance
+./prometheus_port_forward.sh etc => run other port forwarding scripts to access frontend
