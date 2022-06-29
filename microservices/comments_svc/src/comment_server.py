@@ -12,6 +12,16 @@ from bson.objectid import ObjectId
 from prometheus_client import start_http_server
 from py_grpc_prometheus.prometheus_server_interceptor import PromServerInterceptor
 
+DOCKER = False
+import sys
+
+if DOCKER:
+    sys.path.insert(1,"/webapp/helpers")
+else:
+    sys.path.insert(1,'/home/chandradhar/Projects/CTY/AlwaysObservableWebApp/helpers')
+
+from other_middlewears import increment_db_hits
+
 class commentServiceServicer(comments_pb2_grpc.commentServiceServicer):
 
     def __init__(self) -> None:
@@ -37,6 +47,7 @@ class commentServiceServicer(comments_pb2_grpc.commentServiceServicer):
                 "userID":req.userID
             }
             rec_id = self.collection.insert_one(data)
+            increment_db_hits('create_comment')
             ret = comments_pb2.commentItem(
                 id=f"{rec_id.inserted_id}",
                 title=req.title,
@@ -59,6 +70,7 @@ class commentServiceServicer(comments_pb2_grpc.commentServiceServicer):
         allComments = comments_pb2.CommentItemsList()
         print(f"comment_server.py: readComments (1): {request.blogid}")
         Comments = self.collection.find({"parentPost":request.blogid})
+        increment_db_hits('read_comments')
         for comment in Comments:
             allComments.comments.append(comments_pb2.aComment(title = comment["title"],body = comment["body"],author = comment["author"],parentPost = comment["parentPost"],parentComment = comment["parentComment"],userID = comment["userID"]))
 
@@ -68,6 +80,7 @@ class commentServiceServicer(comments_pb2_grpc.commentServiceServicer):
     def GetCreatedComment(self, request, context):
 
         createdComment = (self.collection.find({"_id":ObjectId(request.commentID)}))[0]
+        increment_db_hits('get_created_comments')
         return comments_pb2.commentItem(id = request.commentID,title = createdComment["title"],body = createdComment["body"],author = createdComment["author"],parentPost = createdComment["parentPost"],parentComment = createdComment["parentComment"],userID = createdComment["userID"])
 
 

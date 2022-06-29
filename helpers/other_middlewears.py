@@ -16,6 +16,12 @@ BLOG_COMMENTS = Counter(
     ['app_name','blog_id']
 )
 
+DB_HITS = Counter(
+    'db_hits_counter',
+    'total number of mongodb hits',
+    ['app_name','api_name']
+)
+
 def measure_blog_latency(duration,blog_id,title):
     BLOG_LATENCY.labels(
         'always_observable',
@@ -28,3 +34,11 @@ def increment_blog_comments(blog_id):
         'always_observable',
         blog_id
     ).inc()
+
+def increment_db_hits(api_name):
+    DB_HITS.labels(
+        'always_observable',
+        api_name
+    ).inc()
+
+

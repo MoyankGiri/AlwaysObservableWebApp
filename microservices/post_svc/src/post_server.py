@@ -16,9 +16,10 @@ DOCKER = False
 if DOCKER:
     sys.path.insert(1,"/webapp/helpers")
 else:
-    #sys.path.insert(1,'/home/chandradhar/Projects/CTY/AlwaysObservableWebApp/helpers')
-    sys.path.insert(0,'C:/Users/moyan/Desktop/HPCTY/AlwaysObservableWebApp/helpers')
+    sys.path.insert(1,'/home/chandradhar/Projects/CTY/AlwaysObservableWebApp/helpers')
+    # sys.path.insert(0,'C:/Users/moyan/Desktop/HPCTY/AlwaysObservableWebApp/helpers')
 from error_middlewear import count_error
+from other_middlewears import increment_db_hits
 
 from py_grpc_prometheus.prometheus_server_interceptor import PromServerInterceptor
 
@@ -50,6 +51,7 @@ class postServiceServicer(post_grpc.postServiceServicer):
         try:
             print("req",req)
             res = self.collection.delete_one({"_id":ObjectId(req.id),"userID":req.userID})
+            increment_db_hits('delete_posts')
             if not res.acknowledged:
                 raise ValueError("Unable to delete record from db!")
         except Exception as e:
@@ -75,6 +77,7 @@ class postServiceServicer(post_grpc.postServiceServicer):
                "lastUpdatedDate":req.lastUpdatedDate
             }},return_document=ReturnDocument.AFTER)
             print("row",row)
+            increment_db_hits('update_posts')
 
             if row:
                 print("Updated record!!")
@@ -107,6 +110,7 @@ class postServiceServicer(post_grpc.postServiceServicer):
     def authorPosts(self,req,ctx):
         try:
             posts = self.collection.find({'userID':req.userID})
+            increment_db_hits('fetch_author')
             print("Posts found are: ",posts)
             all_posts = post_pb2.Posts()
             for row in posts:
@@ -148,6 +152,7 @@ class postServiceServicer(post_grpc.postServiceServicer):
 
             rec_id = self.collection.insert_one(data).inserted_id
             print("Commited post with id: ",rec_id)
+            increment_db_hits('create_post')
 
             ret = post_pb2.aPost(
                 id=f"{rec_id}",
@@ -181,6 +186,7 @@ class postServiceServicer(post_grpc.postServiceServicer):
         constraint = datetime.now() - timedelta(minutes=int(1000))
 
         allRows = self.collection.find({})
+        increment_db_hits('fetch_posts')
         print("Posts found are: ",allRows)
 
         num_posts=0
@@ -203,6 +209,7 @@ class postServiceServicer(post_grpc.postServiceServicer):
 
         try:
             row = self.collection.find_one({"_id":ObjectId(req.id)})
+            increment_db_hits('fetch_posts')
             print("row obtained",row)
 
             if not row:

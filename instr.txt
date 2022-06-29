@@ -102,3 +102,9 @@ username,password=admin,admin
 ./kubectlRun.sh => creates various pods,podMonitors etc
 ./prom_operator.sh => creates the prometheus,alertManager and grafana instance
 ./prometheus_port_forward.sh etc => run other port forwarding scripts to access frontend
+
+
+//how to run node exportor - needed for hostMemory and hostDiskSpace exceptions
+cd node_exporter-1.3.1.linux-amd64D 
+./node_exporter
+goto localhost:9001

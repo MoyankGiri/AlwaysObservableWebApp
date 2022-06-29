@@ -27,10 +27,11 @@ DOCKER = False
 if DOCKER:
     sys.path.insert(1,'/webapp/helpers')
 else:
-    #sys.path.insert(1,'/home/chandradhar/Projects/CTY/AlwaysObservableWebApp/helpers')
-    sys.path.insert(0,'C:/Users/moyan/Desktop/HPCTY/AlwaysObservableWebApp/helpers')
+    sys.path.insert(1,'/home/chandradhar/Projects/CTY/AlwaysObservableWebApp/helpers')
+    # sys.path.insert(0,'C:/Users/moyan/Desktop/HPCTY/AlwaysObservableWebApp/helpers')
 
 from error_middlewear import count_error
+from other_middlewears import increment_db_hits
 
 import prometheus_client
 from py_grpc_prometheus.prometheus_server_interceptor import PromServerInterceptor
@@ -65,6 +66,7 @@ class userServiceServicer(user_grpc.userServiceServicer):
 
             #search if user already exists
             res = self.collection.find_one({'username':username})
+            increment_db_hits('create_account')
             print(f'Found in db: {res}')
             count_error('POST','createAccount','Account Exists')
             if res:
@@ -84,6 +86,7 @@ class userServiceServicer(user_grpc.userServiceServicer):
                 print("New user!!!")
                 #create account for user and insert into database
                 rec_id = self.collection.insert_one(user)
+                increment_db_hits('create_account')
                 if rec_id:
                     return user_pb2.isSuccess(
                         success=1,
@@ -108,6 +111,7 @@ class userServiceServicer(user_grpc.userServiceServicer):
         password = req.password.encode('utf-8')
 
         row = self.collection.find_one({'username':username})
+        increment_db_hits('login')
 
         if not row:
             #create account
