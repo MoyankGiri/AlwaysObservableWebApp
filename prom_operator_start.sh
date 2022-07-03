@@ -2,6 +2,7 @@ helm repo add prometheus-community https://prometheus-community.github.io/helm-c
 helm repo update
 helm install prometheus prometheus-community/kube-prometheus-stack
 helm repo update
+helm --debug --stderrthreshold 1 upgrade --install prometheus prometheus-community/kube-prometheus-stack -f alert-rules.yaml -f alertmanager-config.yaml # helps in debugging also
 helm install mongo-exporter prometheus-community/prometheus-mongodb-exporter -f mongodb-values.yaml
 helm repo update
 
@@ -17,3 +18,6 @@ helm repo update
 ## kubectl patch ds prometheus-prometheus-node-exporter --type "json" -p '[{"op": "remove", "path" : "/spec/template/spec/containers/0/volumeMounts/2/mountPropagation"}]'
 
 # grafana credentials -> admin, prom-operator
+
+# get current values of kube prometheus stack => helm get values prometheus --all > temp.yaml # where prometheus is release name
+# get only user specified values => helm get values prometheus
