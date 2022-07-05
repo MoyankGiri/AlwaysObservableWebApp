@@ -1,3 +1,6 @@
+#run prom operator start before anything
+#./prom_operator_start.sh
+
 kubectl apply -f $(pwd)/app/Deployment.yml
 
 for msvc in auth_svc post_svc comments_svc

@@ -12,7 +12,7 @@ from bson.objectid import ObjectId
 from prometheus_client import start_http_server
 from py_grpc_prometheus.prometheus_server_interceptor import PromServerInterceptor
 
-DOCKER = False
+DOCKER = True
 import sys
 
 if DOCKER:

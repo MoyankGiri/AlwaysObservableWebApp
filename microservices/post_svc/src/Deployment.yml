@@ -16,7 +16,7 @@ spec:
         spec:
             containers:
                 - name: postmicroservice
-                  image: pes1ug19cs280/hpcty:postmicroservice
+                  image: chandradharrao/cty_webapp:postmicroservice
                   env:
                     - name: DB
                       value: postmongodb

@@ -16,7 +16,7 @@ spec:
         spec:
             containers:
                 - name: commentmicroservice
-                  image: pes1ug19cs280/hpcty:commentmicroservice
+                  image: chandradharrao/cty_webapp:commentmicroservice
                   env:
                     - name: DB
                       value: commentmongodb

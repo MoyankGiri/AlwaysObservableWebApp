@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: apigateway
-          image: pes1ug19cs280/hpcty:apigateway
+          image: chandradharrao/cty_webapp:apigateway
           env:
             - name: DB
               value: mongodb://mongodb:27017
