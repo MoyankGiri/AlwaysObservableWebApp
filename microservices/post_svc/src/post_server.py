@@ -192,10 +192,15 @@ class postServiceServicer(post_grpc.postServiceServicer):
         num_posts=0
         for row in allRows:
             print(f'ROW {row}')
-            currDate = row['creationDate']
-            if currDate > constraint:
-                allPosts.posts.append(post_pb2.postPreview(title=row['title'],author=row['author'],creationDate=str(row['creationDate']),id=str(row['_id'])))
-                num_posts+=1
+
+            '''Fix if time permits'''
+            # currDate = row['creationDate']
+            # if currDate > constraint:
+            #     allPosts.posts.append(post_pb2.postPreview(title=row['title'],author=row['author'],creationDate=str(row['creationDate']),id=str(row['_id'])))
+            #     num_posts+=1
+
+            allPosts.posts.append(post_pb2.postPreview(title=row['title'],author=row['author'],creationDate=str(row['creationDate']),id=str(row['_id'])))
+            num_posts+=1
 
         if num_posts==0:
             count_error("GET","fetchPosts","no posts to fetch!")  
