@@ -9,7 +9,7 @@ from py_grpc_prometheus.prometheus_client_interceptor import PromClientIntercept
 import time
 
 
-DOCKER = True
+DOCKER = False
 debugFlag = 1
 
 import sys

@@ -43,43 +43,20 @@ additionalPrometheusRulesMap:
         annotations:
           summary: Host high CPU load (instance {{ $labels.instance }})
           description: "CPU load is > 90%\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
-
-
-# apiVersion: monitoring.coreos.com/v1
-# kind: PrometheusRule
-# metadata:
-#   labels:
-#     prometheus: prometheus-kube-prometheus-prometheus
-#     role: alert-rules
-#     release: prometheus
-#   name: alert.rules
-# spec:
-#   groups:
-#   - name: "alert.rules"
-#     rules:
-#     - alert: InstanceDown
-#       expr: up == 0
-#       for: 1m
-#       labels:
-#         severity: "critical"
-#       annotations:
-#         summary: "Endpoint {{ $labels.instance }} down"
-#         description: "{{ $labels.instance }} of job {{ $labels.job }} has been down for more than 1 minutes."
-
-#     - alert: HostOutOfMemory
-#       expr: node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes * 100 < 100
-#       for: 1s
-#       labels:
-#         severity: "critical"
-#       annotations:
-#         summary: "Host out of memory (instance {{ $labels.instance }})"
-#         description: "Node memory is filling up (< 100% left)\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
-
-#     - alert: HostOutOfDiskSpace
-#       expr: (node_filesystem_avail_bytes{mountpoint="/"}  * 100) / node_filesystem_size_bytes{mountpoint="/"} < 100
-#       for: 1s
-#       labels:
-#         severity: "critical"
-#       annotations:
-#         summary: "Host out of disk space (instance {{ $labels.instance }})"
-#         description: "Disk is almost full (< 100% left)\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+      - alert: HighRetrievalLatency
+        expr: blog_latency_sum>=3.0
+        for: 1s
+        labels:
+          severity: "critical"
+        annotations:
+          summary: "High latency while fetching (Blog {{ $labels.blog_id }})"
+          description: "Blog took more than 3s to load\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+          
+      - alert: AnomalyRequestsByIpAddr
+        expr: rate(ip_source_counter_total{instance="localhost:5000"}[10s])*10>10
+        for: 1s
+        labels:
+          severity: "critical"
+        annotations:
+          summary: "Large Number of requests by (IP ADDRESS {{ $labels.source_ip }})"
+          description: "More than 10 requests made in the last 10 seconds\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"

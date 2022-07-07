@@ -26,6 +26,21 @@ RES_SIZE = Histogram(
     ['app_name']
 )
 
+BLOG_SOURCES = Counter(
+    'ip_source_counter',
+    'total number of requests made by a particular API',
+    ['app_name','source_ip']
+)
+
+def inc_ip_hits():
+    ipaddr = request.environ.get('REMOTE_ADDR')
+    print("Incoming IP ADDR is ", ipaddr)
+
+    BLOG_SOURCES.labels(
+        'always_observable',
+        ipaddr
+    ).inc()
+
 def res_size(response):
     size = None
 
@@ -86,6 +101,8 @@ def stop_timer(response):
 
 def setup_metrics(app):
     # print("Setting up middle wear!")
+
+    app.before_request(inc_ip_hits)
 
     app.before_request(popularity_handle)
 
