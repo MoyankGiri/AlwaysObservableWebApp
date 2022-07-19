@@ -11,7 +11,7 @@ import prometheus_client
 
 import sys
 
-DOCKER = False
+DOCKER = True
 
 if DOCKER:
     sys.path.insert(1,"/webapp/helpers")

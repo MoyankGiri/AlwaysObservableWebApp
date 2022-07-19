@@ -53,10 +53,10 @@ additionalPrometheusRulesMap:
           description: "Blog took more than 3s to load\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
           
       - alert: AnomalyRequestsByIpAddr
-        expr: rate(ip_source_counter_total{instance="localhost:5000"}[10s])*10>10
+        expr: rate(ip_source_counter_total{container="apigateway"}[3m])*10>5
         for: 1s
         labels:
           severity: "critical"
         annotations:
           summary: "Large Number of requests by (IP ADDRESS {{ $labels.source_ip }})"
-          description: "More than 10 requests made in the last 10 seconds\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+          description: "More than 5 requests made in the last 3 minutes\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"

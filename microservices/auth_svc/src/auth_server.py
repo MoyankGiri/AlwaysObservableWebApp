@@ -22,7 +22,7 @@ import os
 key = "secret"
 
 import sys
-DOCKER = False
+DOCKER = True
 
 if DOCKER:
     sys.path.insert(1,'/webapp/helpers')

@@ -111,3 +111,14 @@ Link the alert.rules.yaml file with prometheus by providing its path since prome
 cd node_exporter-1.3.1.linux-amd64D 
 ./node_exporter
 goto localhost:9001
+
+
+
+//final instr for presentation setup
+->minikube start
+->run prom operator.sh
+->run force_upgrade_config
+->run kubectlStart.sh
+->port forward using pod name via various k8_port_forward scripts
+->run workloadSim script
+->import grafana dashboard into kubernetes

@@ -2,7 +2,7 @@ helm repo add prometheus-community https://prometheus-community.github.io/helm-c
 helm repo update
 helm install prometheus prometheus-community/kube-prometheus-stack
 helm repo update
-helm --debug --stderrthreshold 1 upgrade --install prometheus prometheus-community/kube-prometheus-stack -f alert-rules.yaml -f alertmanager-config.yaml # helps in debugging also
+helm --debug --stderrthreshold 1 upgrade --install prometheus prometheus-community/kube-prometheus-stack -n default -f alert-rules.yaml -f alertmanager-config.yaml # helps in debugging also
 helm install mongo-exporter prometheus-community/prometheus-mongodb-exporter -f mongodb-values.yaml
 helm repo update
 
